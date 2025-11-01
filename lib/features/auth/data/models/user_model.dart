@@ -10,6 +10,7 @@ class UserModel {
   final String email;
   final String? displayName;
   final String? photoUrl;
+  final String? phoneNumber;
   final bool isAdmin;
   final DateTime createdAt;
   final DateTime? lastLoginAt;
@@ -19,6 +20,7 @@ class UserModel {
     required this.email,
     this.displayName,
     this.photoUrl,
+    this.phoneNumber,
     this.isAdmin = false,
     required this.createdAt,
     this.lastLoginAt,
@@ -32,6 +34,7 @@ class UserModel {
       email: data['email'] as String,
       displayName: data['displayName'] as String?,
       photoUrl: data['photoUrl'] as String?,
+      phoneNumber: data['phoneNumber'] as String?,
       isAdmin: data['isAdmin'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       lastLoginAt: data['lastLoginAt'] != null
@@ -46,6 +49,7 @@ class UserModel {
       'email': email,
       'displayName': displayName,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
       'isAdmin': isAdmin,
       'createdAt': Timestamp.fromDate(createdAt),
       'lastLoginAt': lastLoginAt != null
@@ -62,6 +66,7 @@ class UserModel {
       email: json['email'] as String,
       displayName: json['displayName'] as String?,
       photoUrl: json['photoUrl'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       isAdmin: json['isAdmin'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
       lastLoginAt: json['lastLoginAt'] != null
@@ -78,6 +83,7 @@ class UserModel {
       'email': email,
       'displayName': displayName,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
       'isAdmin': isAdmin,
       'createdAt': createdAt.toIso8601String(),
       'lastLoginAt': lastLoginAt?.toIso8601String(),
@@ -90,6 +96,7 @@ class UserModel {
     String? email,
     String? displayName,
     String? photoUrl,
+    String? phoneNumber,
     bool? isAdmin,
     DateTime? createdAt,
     DateTime? lastLoginAt,
@@ -99,6 +106,7 @@ class UserModel {
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
       photoUrl: photoUrl ?? this.photoUrl,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       isAdmin: isAdmin ?? this.isAdmin,
       createdAt: createdAt ?? this.createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,

@@ -1,22 +1,33 @@
 import 'package:go_router/go_router.dart';
 import '../../core/constants/route_names.dart';
-import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/aircraft/presentation/pages/home_page.dart';
 import '../../features/aircraft/presentation/pages/aircraft_detail_page.dart';
 import '../../features/booking/presentation/pages/booking_page.dart';
+import '../../core/firebase/firebase_service.dart';
 
 /// Uygulama routing yapılandırması
 final appRouter = GoRouter(
-  initialLocation: RouteNames.splash,
+  initialLocation: RouteNames.login,
+  redirect: (context, state) {
+    // Eğer kullanıcı giriş yapmışsa ve login/register sayfasındaysa home'a yönlendir
+    final user = FirebaseService.currentUser;
+    final isOnLogin = state.uri.path == RouteNames.login;
+    final isOnRegister = state.uri.path == RouteNames.register;
+    
+    if (user != null && (isOnLogin || isOnRegister)) {
+      return RouteNames.home;
+    }
+    
+    // Eğer kullanıcı giriş yapmamışsa ve home sayfasındaysa login'e yönlendir
+    if (user == null && state.uri.path == RouteNames.home) {
+      return RouteNames.login;
+    }
+    
+    return null; // Yönlendirme yok
+  },
   routes: [
-    // Splash
-    GoRoute(
-      path: RouteNames.splash,
-      builder: (context, state) => const SplashPage(),
-    ),
-
     // Auth Routes
     GoRoute(
       path: RouteNames.login,

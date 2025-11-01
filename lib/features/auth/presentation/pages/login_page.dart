@@ -1,24 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/route_names.dart';
+import '../../../../core/utils/preferences_helper.dart';
 import '../../../../shared/widgets/animated_background.dart';
+import '../providers/auth_provider.dart';
 
 /// Login ekranı
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Widget build edildikten sonra email'i yükle
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadRememberedEmail();
+    });
+  }
+
+  /// Kaydedilmiş email'i yükle
+  Future<void> _loadRememberedEmail() async {
+    try {
+      final rememberedEmail = await PreferencesHelper.getRememberedEmail();
+      final rememberMe = await PreferencesHelper.getRememberMe();
+
+      debugPrint('Remembered email: $rememberedEmail');
+      debugPrint('Remember me: $rememberMe');
+
+      if (rememberedEmail != null && rememberedEmail.isNotEmpty && mounted) {
+        setState(() {
+          _emailController.text = rememberedEmail;
+          _rememberMe = rememberMe;
+        });
+        debugPrint('Email yüklendi: $rememberedEmail');
+      } else {
+        debugPrint('Email bulunamadı veya boş');
+      }
+    } catch (e) {
+      debugPrint('Remember email load error: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -32,41 +67,82 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
 
-    try {
-      // TODO: Firebase Auth ile login
-      await Future.delayed(const Duration(seconds: 1));
+    final authNotifier = ref.read(authStateProvider.notifier);
 
-      if (!mounted) return;
-      context.go(RouteNames.home);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Giriş başarısız: ${e.toString()}')),
+    await authNotifier.signInWithEmail(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+
+    // Auth state'i dinle - bir sonraki build'de kontrol et
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = ref.read(authStateProvider);
+      authState.whenData((user) {
+        if (user != null && mounted) {
+          setState(() => _isLoading = false);
+
+          // Beni Hatırla işlemi (async - await edilmeden çalışır)
+          if (_rememberMe) {
+            PreferencesHelper.saveEmail(_emailController.text.trim()).then((_) {
+              PreferencesHelper.setRememberMe(true);
+              debugPrint('Email kaydedildi: ${_emailController.text.trim()}');
+            });
+          } else {
+            PreferencesHelper.clearRememberMe().then((_) {
+              debugPrint('Remember me temizlendi');
+            });
+          }
+
+          context.go(RouteNames.home);
+        }
+      });
+
+      authState.whenOrNull(
+        error: (error, stackTrace) {
+          if (mounted) {
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Giriş başarısız: $error'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
       );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    });
   }
 
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
-    try {
-      // TODO: Google Sign In
-      await Future.delayed(const Duration(seconds: 1));
-      if (!mounted) return;
-      context.go(RouteNames.home);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google girişi başarısız: ${e.toString()}')),
+
+    final authNotifier = ref.read(authStateProvider.notifier);
+    await authNotifier.signInWithGoogle();
+
+    // Auth state'i dinle - bir sonraki build'de kontrol et
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = ref.read(authStateProvider);
+      authState.whenData((user) {
+        if (user != null && mounted) {
+          setState(() => _isLoading = false);
+          context.go(RouteNames.home);
+        }
+      });
+
+      authState.whenOrNull(
+        error: (error, stackTrace) {
+          if (mounted) {
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Google girişi başarısız: $error'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
       );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    });
   }
 
   @override

@@ -23,9 +23,7 @@ class _SplashPageState extends State<SplashPage> {
   /// Uygulamayı başlat
   Future<void> _initializeApp() async {
     try {
-      // Firebase'i başlat
-      await FirebaseService.initialize();
-
+      // Firebase zaten main.dart'ta initialize edildi
       // Auth durumunu kontrol et
       await Future.delayed(const Duration(seconds: 2));
 

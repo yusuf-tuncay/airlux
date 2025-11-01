@@ -141,7 +141,6 @@ class ResponsiveScaffold extends StatelessWidget {
               selectedIndex: bottomNavIndex ?? 0,
               onDestinationSelected: onBottomNavTap ?? (_) {},
               extended: true,
-              labelType: NavigationRailLabelType.all,
               destinations: const [
                 NavigationRailDestination(
                   icon: Icon(Icons.flight),

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../shared/widgets/animated_background.dart';
+import '../providers/auth_provider.dart';
 
 /// Register ekranı
-class RegisterPage extends StatefulWidget {
+class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -36,24 +38,52 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Şifre kontrolü
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Şifreler eşleşmiyor'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    try {
-      // TODO: Firebase Auth ile register
-      await Future.delayed(const Duration(seconds: 1));
+    final authNotifier = ref.read(authStateProvider.notifier);
 
-      if (!mounted) return;
-      context.go(RouteNames.home);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt başarısız: ${e.toString()}')),
+    await authNotifier.signUpWithEmail(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      name: _nameController.text.trim(),
+      phone: _phoneController.text.trim(),
+    );
+
+    // Auth state'i dinle - bir sonraki build'de kontrol et
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = ref.read(authStateProvider);
+      authState.whenData((user) {
+        if (user != null && mounted) {
+          setState(() => _isLoading = false);
+          context.go(RouteNames.home);
+        }
+      });
+
+      authState.whenOrNull(
+        error: (error, stackTrace) {
+          if (mounted) {
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Kayıt başarısız: $error'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
       );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    });
   }
 
   @override
