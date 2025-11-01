@@ -1,7 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 
 /// Firebase servisleri için base class
 class FirebaseService {
@@ -26,4 +24,3 @@ class FirebaseService {
   /// Kullanıcı durumunu dinle
   static Stream<User?> get authStateChanges => auth.authStateChanges();
 }
-

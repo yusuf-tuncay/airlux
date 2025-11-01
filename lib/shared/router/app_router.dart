@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/route_names.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/presentation/pages/phone_number_page.dart';
 import '../../features/aircraft/presentation/pages/home_page.dart';
 import '../../features/aircraft/presentation/pages/aircraft_detail_page.dart';
 import '../../features/booking/presentation/pages/booking_page.dart';
@@ -11,19 +12,25 @@ import '../../core/firebase/firebase_service.dart';
 final appRouter = GoRouter(
   initialLocation: RouteNames.login,
   redirect: (context, state) {
-    // Eğer kullanıcı giriş yapmışsa ve login/register sayfasındaysa home'a yönlendir
     final user = FirebaseService.currentUser;
-    final isOnLogin = state.uri.path == RouteNames.login;
-    final isOnRegister = state.uri.path == RouteNames.register;
+    final currentPath = state.uri.path;
     
-    if (user != null && (isOnLogin || isOnRegister)) {
-      return RouteNames.home;
-    }
-    
-    // Eğer kullanıcı giriş yapmamışsa ve home sayfasındaysa login'e yönlendir
-    if (user == null && state.uri.path == RouteNames.home) {
+    // Eğer kullanıcı giriş yapmamışsa
+    if (user == null) {
+      // Login ve register sayfalarına erişebilir
+      if (currentPath == RouteNames.login || currentPath == RouteNames.register) {
+        return null;
+      }
+      // Diğer sayfalara erişmeye çalışıyorsa login'e yönlendir
       return RouteNames.login;
     }
+    
+    // NOT: Telefon numarası kontrolü GEÇİCİ OLARAK KALDIRILDI
+    // Kullanıcı telefon numarası girmeden de devam edebilir
+    // Telefon numarası sayfasına erişim serbest ama zorunlu değil
+    
+    // NOT: Kullanıcı giriş yapmış olsa bile login sayfasına erişebilmeli
+    // (Beni Hatırla özelliği için veriler yüklenebilsin diye)
     
     return null; // Yönlendirme yok
   },
@@ -36,6 +43,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteNames.register,
       builder: (context, state) => const RegisterPage(),
+    ),
+    GoRoute(
+      path: RouteNames.phoneNumber,
+      builder: (context, state) => const PhoneNumberPage(),
     ),
 
     // Main Routes

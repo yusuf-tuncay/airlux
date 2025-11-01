@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../core/utils/preferences_helper.dart';
+import '../../../../core/firebase/firebase_service.dart';
 import '../../../../shared/widgets/animated_background.dart';
 import '../providers/auth_provider.dart';
 
@@ -26,32 +27,176 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void initState() {
     super.initState();
-    // Widget build edildikten sonra email'i yükle
+    debugPrint('🔵 LoginPage initState çağrıldı');
+    debugPrint('🔵 Widget key: ${widget.key}');
+
+    // Önce SharedPreferences'ı kontrol et - HEMEN başlat
+    _loadRememberedEmail();
+
+    // Eğer Firebase session açıksa ve remember me varsa, otomatik giriş yap
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadRememberedEmail();
+      _checkAutoLogin();
     });
   }
 
-  /// Kaydedilmiş email'i yükle
-  Future<void> _loadRememberedEmail() async {
+  /// Otomatik giriş kontrolü
+  Future<void> _checkAutoLogin() async {
     try {
-      final rememberedEmail = await PreferencesHelper.getRememberedEmail();
+      final user = FirebaseService.currentUser;
       final rememberMe = await PreferencesHelper.getRememberMe();
+      final rememberedEmail = await PreferencesHelper.getRememberedEmail();
+      final rememberedPassword =
+          await PreferencesHelper.getRememberedPassword();
 
-      debugPrint('Remembered email: $rememberedEmail');
-      debugPrint('Remember me: $rememberMe');
+      debugPrint('🔄 Otomatik giriş kontrolü:');
+      debugPrint('   👤 Firebase User: ${user != null ? "Var" : "Yok"}');
+      debugPrint('   ✓ Remember Me: $rememberMe');
+      debugPrint(
+        '   📧 Remembered Email: ${rememberedEmail != null ? "Var" : "Yok"}',
+      );
+      debugPrint(
+        '   🔑 Remembered Password: ${rememberedPassword != null ? "Var" : "Yok"}',
+      );
 
-      if (rememberedEmail != null && rememberedEmail.isNotEmpty && mounted) {
-        setState(() {
-          _emailController.text = rememberedEmail;
-          _rememberMe = rememberMe;
-        });
-        debugPrint('Email yüklendi: $rememberedEmail');
-      } else {
-        debugPrint('Email bulunamadı veya boş');
+      // Eğer Firebase'de giriş yapmışsa ve remember me açıksa, home'a git
+      if (user != null && rememberMe && mounted) {
+        debugPrint('✅ Otomatik giriş yapılıyor - Home\'a yönlendiriliyor');
+        // Kısa bir gecikme ekle ki veriler yüklensin
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (mounted) {
+          context.go(RouteNames.home);
+        }
+      } else if (user == null &&
+          rememberMe &&
+          rememberedEmail != null &&
+          rememberedPassword != null &&
+          mounted) {
+        // Eğer Firebase'de giriş yapmamışsa ama remember me verileri varsa, otomatik giriş yap
+        debugPrint('🔄 Remember me verileri var, otomatik giriş deneniyor...');
+        _autoLogin();
       }
     } catch (e) {
-      debugPrint('Remember email load error: $e');
+      debugPrint('❌ Otomatik giriş kontrolü hatası: $e');
+    }
+  }
+
+  /// Otomatik giriş yap
+  Future<void> _autoLogin() async {
+    try {
+      final rememberedEmail = await PreferencesHelper.getRememberedEmail();
+      final rememberedPassword =
+          await PreferencesHelper.getRememberedPassword();
+
+      if (rememberedEmail == null || rememberedPassword == null || !mounted) {
+        return;
+      }
+
+      debugPrint('🔐 Otomatik giriş başlatılıyor: $rememberedEmail');
+      setState(() => _isLoading = true);
+
+      final authNotifier = ref.read(authStateProvider.notifier);
+      await authNotifier.signInWithEmail(
+        email: rememberedEmail,
+        password: rememberedPassword,
+      );
+
+      // State güncellenmesini bekle
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+
+      final authState = ref.read(authStateProvider);
+      authState.when(
+        data: (user) {
+          if (user != null && mounted) {
+            debugPrint('✅ Otomatik giriş başarılı!');
+            context.go(RouteNames.home);
+          }
+        },
+        error: (error, stackTrace) {
+          debugPrint('❌ Otomatik giriş başarısız: $error');
+          setState(() => _isLoading = false);
+        },
+        loading: () {
+          // Loading durumunda bekle
+        },
+      );
+    } catch (e) {
+      debugPrint('❌ Otomatik giriş hatası: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  /// Kaydedilmiş bilgileri yükle
+  Future<void> _loadRememberedEmail() async {
+    debugPrint('🔵 _loadRememberedEmail çağrıldı');
+    try {
+      // Tüm SharedPreferences verilerini göster (debug için)
+      await PreferencesHelper.debugPrintAll();
+
+      final rememberedEmail = await PreferencesHelper.getRememberedEmail();
+      final rememberedPassword =
+          await PreferencesHelper.getRememberedPassword();
+      final rememberMe = await PreferencesHelper.getRememberMe();
+
+      debugPrint('🔍 Kaydedilmiş bilgiler kontrol ediliyor...');
+      debugPrint('   📧 Email: $rememberedEmail');
+      debugPrint(
+        '   🔑 Şifre: ${rememberedPassword != null ? "${rememberedPassword.length} karakter" : "yok"}',
+      );
+      debugPrint('   ✓ Remember Me: $rememberMe');
+      debugPrint('   📱 Widget mounted: $mounted');
+
+      if (!mounted) {
+        debugPrint('⚠️ Widget unmounted, veriler yüklenmeyecek');
+        return;
+      }
+
+      if (rememberMe) {
+        debugPrint('✅ Remember me aktif, veriler yükleniyor...');
+        bool emailLoaded = false;
+        bool passwordLoaded = false;
+
+        if (rememberedEmail != null && rememberedEmail.isNotEmpty) {
+          _emailController.text = rememberedEmail;
+          emailLoaded = true;
+          debugPrint('   ✅ Email yüklendi: $rememberedEmail');
+        } else {
+          debugPrint('   ❌ Email null veya boş');
+        }
+
+        if (rememberedPassword != null && rememberedPassword.isNotEmpty) {
+          _passwordController.text = rememberedPassword;
+          passwordLoaded = true;
+          debugPrint(
+            '   ✅ Şifre yüklendi: ${rememberedPassword.length} karakter',
+          );
+        } else {
+          debugPrint('   ❌ Şifre null veya boş');
+        }
+
+        setState(() {
+          _rememberMe = true;
+        });
+
+        debugPrint('   ✅ Remember Me checkbox işaretlendi');
+
+        if (emailLoaded || passwordLoaded) {
+          debugPrint('✅ Bilgiler başarıyla yüklendi ve setState çağrıldı');
+        } else {
+          debugPrint('⚠️ Hiçbir veri yüklenemedi');
+        }
+      } else {
+        debugPrint('ℹ️ Remember me kapalı, veriler yüklenmeyecek');
+        setState(() {
+          _rememberMe = false;
+        });
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ Remember bilgileri yükleme hatası: $e');
+      debugPrint('Stack trace: $stackTrace');
     }
   }
 
@@ -67,37 +212,199 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     setState(() => _isLoading = true);
 
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final rememberMe = _rememberMe;
+
+    // DEBUG: Remember me değerini kontrol et
+    debugPrint('🔐 Giriş yapılıyor:');
+    debugPrint('   📧 Email: $email');
+    debugPrint('   🔑 Şifre: ${password.length} karakter');
+    debugPrint('   ✓ Remember Me: $rememberMe');
+
     final authNotifier = ref.read(authStateProvider.notifier);
 
-    await authNotifier.signInWithEmail(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-    );
+    try {
+      await authNotifier.signInWithEmail(email: email, password: password);
 
-    // Auth state'i dinle - bir sonraki build'de kontrol et
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // State güncellenmesini bekle
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+
+      // State'i kontrol et
       final authState = ref.read(authStateProvider);
-      authState.whenData((user) {
-        if (user != null && mounted) {
-          setState(() => _isLoading = false);
 
-          // Beni Hatırla işlemi (async - await edilmeden çalışır)
-          if (_rememberMe) {
-            PreferencesHelper.saveEmail(_emailController.text.trim()).then((_) {
-              PreferencesHelper.setRememberMe(true);
-              debugPrint('Email kaydedildi: ${_emailController.text.trim()}');
-            });
-          } else {
-            PreferencesHelper.clearRememberMe().then((_) {
-              debugPrint('Remember me temizlendi');
-            });
+      // Başarılı giriş kontrolü
+      authState.when(
+        data: (user) async {
+          if (user != null && mounted) {
+            setState(() => _isLoading = false);
+
+            // Beni Hatırla işlemi - ÖNCE KAYDET, SONRA NAVIGATE ET
+            if (rememberMe) {
+              debugPrint('💾 Remember me AÇIK - Veriler kaydediliyor...');
+              try {
+                // Tüm bilgileri TEK TEK kaydet (Web'de daha güvenilir)
+                debugPrint('   💾 Email kaydediliyor...');
+                await PreferencesHelper.saveEmail(email);
+                debugPrint('   ✅ Email kaydedildi');
+
+                debugPrint('   💾 Şifre kaydediliyor...');
+                await PreferencesHelper.savePassword(password);
+                debugPrint('   ✅ Şifre kaydedildi');
+
+                debugPrint('   💾 Remember Me durumu kaydediliyor...');
+                await PreferencesHelper.setRememberMe(true);
+                debugPrint('   ✅ Remember Me kaydedildi');
+
+                // İsim varsa ekle
+                if (user.name != null && user.name!.isNotEmpty) {
+                  debugPrint('   💾 İsim kaydediliyor...');
+                  await PreferencesHelper.saveName(user.name!);
+                  debugPrint('   ✅ İsim kaydedildi');
+                }
+
+                debugPrint('✅ Tüm kaydetme işlemleri tamamlandı (tek tek)');
+
+                // Kayıtları doğrula (hemen kontrol et)
+                await PreferencesHelper.debugPrintAll();
+
+                // Kaydedilen değerleri tekrar oku ve doğrula
+                final savedEmail = await PreferencesHelper.getRememberedEmail();
+                final savedPassword =
+                    await PreferencesHelper.getRememberedPassword();
+                final savedRememberMe = await PreferencesHelper.getRememberMe();
+
+                debugPrint('📋 Kaydedilen değerler doğrulandı:');
+                debugPrint('   📧 Saved Email: $savedEmail (beklenen: $email)');
+                debugPrint(
+                  '   🔑 Saved Password: ${savedPassword != null ? "${savedPassword.length} karakter" : "null"} (beklenen: ${password.length} karakter)',
+                );
+                debugPrint(
+                  '   ✓ Saved Remember Me: $savedRememberMe (beklenen: true)',
+                );
+
+                if (savedEmail == email &&
+                    savedPassword == password &&
+                    savedRememberMe == true) {
+                  debugPrint(
+                    '✅ Tüm veriler başarıyla kaydedildi ve doğrulandı!',
+                  );
+                } else {
+                  debugPrint(
+                    '⚠️ Veri doğrulama başarısız! Beklenen değerler kaydedilmemiş olabilir.',
+                  );
+                }
+
+                debugPrint('✅ Bilgiler başarıyla kaydedildi:');
+                debugPrint('   📧 Email: $email');
+                debugPrint('   🔑 Şifre: ${password.length} karakter');
+                debugPrint('   👤 İsim: ${user.name ?? "yok"}');
+                debugPrint('   ✓ Remember Me: true');
+
+                // Kısa bir gecikme ekle (SharedPreferences'ın commit edilmesi için)
+                await Future.delayed(const Duration(milliseconds: 500));
+
+                // Final kontrol - tekrar oku ve doğrula
+                debugPrint(
+                  '🔍 Final kontrol - localStorage\'dan tekrar okuyoruz...',
+                );
+                await PreferencesHelper.debugPrintAll();
+
+                // Kaydetme başarılı olduktan SONRA navigate et
+                if (mounted) {
+                  context.go(RouteNames.home);
+                }
+              } catch (e) {
+                debugPrint('❌ Bilgiler kaydedilirken hata: $e');
+                // Hata olsa bile navigate et
+                if (mounted) {
+                  context.go(RouteNames.home);
+                }
+              }
+            } else {
+              // Remember me kapalıysa temizle (async beklemeden)
+              PreferencesHelper.clearRememberMe().then((_) {
+                debugPrint('🗑️ Remember me verileri temizlendi');
+              });
+
+              // Navigate et
+              if (mounted) {
+                context.go(RouteNames.home);
+              }
+            }
           }
+        },
+        loading: () async {
+          // Hala yükleniyorsa, state güncellenene kadar bekle
+          debugPrint('⏳ Auth state yükleniyor...');
 
-          context.go(RouteNames.home);
-        }
-      });
+          // Biraz daha bekle ve tekrar kontrol et
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (!mounted) return;
 
-      authState.whenOrNull(
+          final updatedState = ref.read(authStateProvider);
+          updatedState.when(
+            data: (user) async {
+              if (user != null && mounted) {
+                setState(() => _isLoading = false);
+
+                // Beni Hatırla işlemi - ÖNCE KAYDET, SONRA NAVIGATE ET
+                if (rememberMe) {
+                  try {
+                    final saveOperations = <Future>[
+                      PreferencesHelper.saveEmail(email),
+                      PreferencesHelper.savePassword(password),
+                      PreferencesHelper.setRememberMe(true),
+                    ];
+
+                    if (user.name != null && user.name!.isNotEmpty) {
+                      saveOperations.add(
+                        PreferencesHelper.saveName(user.name!),
+                      );
+                    }
+
+                    // Kaydetme işleminin tamamlanmasını bekle
+                    await Future.wait(saveOperations);
+                    debugPrint('✅ Bilgiler başarıyla kaydedildi (retry):');
+                    debugPrint('   📧 Email: $email');
+                  } catch (e) {
+                    debugPrint('❌ Bilgiler kaydedilirken hata (retry): $e');
+                  }
+                }
+
+                // Navigate et
+                if (mounted) {
+                  context.go(RouteNames.home);
+                }
+              }
+            },
+            loading: () {
+              // Hala yükleniyor, hatayı göster
+              if (mounted) {
+                setState(() => _isLoading = false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Giriş işlemi zaman aşımına uğradı'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            },
+            error: (error, stackTrace) {
+              if (mounted) {
+                setState(() => _isLoading = false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Giriş başarısız: $error'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            },
+          );
+        },
         error: (error, stackTrace) {
           if (mounted) {
             setState(() => _isLoading = false);
@@ -110,29 +417,104 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           }
         },
       );
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bir hata oluştu: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
 
     final authNotifier = ref.read(authStateProvider.notifier);
-    await authNotifier.signInWithGoogle();
 
-    // Auth state'i dinle - bir sonraki build'de kontrol et
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    try {
+      await authNotifier.signInWithGoogle();
+
+      // State güncellenmesini bekle
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+
+      // State'i kontrol et
       final authState = ref.read(authStateProvider);
-      authState.whenData((user) {
-        if (user != null && mounted) {
-          setState(() => _isLoading = false);
-          context.go(RouteNames.home);
-        }
-      });
 
-      authState.whenOrNull(
+      // Başarılı giriş kontrolü
+      authState.when(
+        data: (user) async {
+          if (user != null && mounted) {
+            setState(() => _isLoading = false);
+            debugPrint('✅ Google girişi başarılı: ${user.email}');
+
+            // NOT: Telefon numarası kontrolü GEÇİCİ OLARAK KALDIRILDI
+            // Kullanıcı doğrudan home'a yönlendiriliyor
+            // Telefon numarası girmek isteyenler telefon numarası sayfasına manuel olarak gidebilir
+            if (mounted) {
+              context.go(RouteNames.home);
+            }
+          }
+        },
+        loading: () async {
+          // Hala yükleniyorsa, state güncellenene kadar bekle
+          debugPrint('⏳ Google auth state yükleniyor...');
+
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (!mounted) return;
+
+          final updatedState = ref.read(authStateProvider);
+          updatedState.when(
+            data: (user) async {
+              if (user != null && mounted) {
+                setState(() => _isLoading = false);
+
+                // NOT: Telefon numarası kontrolü GEÇİCİ OLARAK KALDIRILDI
+                // Kullanıcı doğrudan home'a yönlendiriliyor
+                if (mounted) {
+                  context.go(RouteNames.home);
+                }
+              }
+            },
+            loading: () {
+              if (mounted) {
+                setState(() => _isLoading = false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Google girişi zaman aşımına uğradı'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            },
+            error: (error, stackTrace) {
+              if (mounted) {
+                setState(() => _isLoading = false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Google girişi başarısız: $error'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            },
+          );
+        },
         error: (error, stackTrace) {
           if (mounted) {
             setState(() => _isLoading = false);
+
+            // "iptal edildi" hatası ise sessizce geç
+            if (error.toString().contains('iptal')) {
+              debugPrint('ℹ️ Google girişi kullanıcı tarafından iptal edildi');
+              return;
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Google girişi başarısız: $error'),
@@ -142,7 +524,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           }
         },
       );
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bir hata oluştu: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   @override

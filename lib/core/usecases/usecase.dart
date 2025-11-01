@@ -3,13 +3,13 @@ import '../failures/failures.dart';
 
 /// Base UseCase interface
 /// Tüm use case'ler bu interface'i implement eder
-abstract class UseCase<Type, Params> {
-  Future<Either<Failure, Type>> call(Params params);
+abstract class UseCase<TResult, TParams> {
+  Future<Either<Failure, TResult>> call(TParams params);
 }
 
 /// Parametre almayan use case
-abstract class UseCaseNoParams<Type> {
-  Future<Either<Failure, Type>> call();
+abstract class UseCaseNoParams<TResult> {
+  Future<Either<Failure, TResult>> call();
 }
 
 /// Use case parametreleri için base class
