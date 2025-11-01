@@ -17,8 +17,8 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     firebase_auth.FirebaseAuth? auth,
     GoogleSignIn? googleSignIn,
-  })  : _auth = auth ?? FirebaseService.auth,
-        _googleSignIn = googleSignIn;
+  }) : _auth = auth ?? FirebaseService.auth,
+       _googleSignIn = googleSignIn;
 
   @override
   Future<Either<Failure, UserEntity>> signUpWithEmail({
@@ -99,7 +99,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Bu, google_sign_in paketini kullanmadan doğrudan Firebase ile çalışır
       final firebase_auth.GoogleAuthProvider googleProvider =
           firebase_auth.GoogleAuthProvider();
-      
+
       // Google Sign-In işlemini başlat
       final userCredential = await _auth.signInWithPopup(googleProvider);
 
@@ -135,9 +135,7 @@ class AuthRepositoryImpl implements AuthRepository {
           await FirebaseService.firestore
               .collection('users')
               .doc(user.uid)
-              .update({
-            'lastLoginAt': Timestamp.fromDate(DateTime.now()),
-          });
+              .update({'lastLoginAt': Timestamp.fromDate(DateTime.now())});
         }
       } catch (e) {
         // Firestore yazma hatası kritik değil, giriş başarılı
@@ -147,7 +145,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Either.right(_userFromFirebase(user));
     } on firebase_auth.FirebaseAuthException catch (e) {
       // "popup-closed-by-user" hatası - kullanıcı popup'ı kapattı
-      if (e.code == 'popup-closed-by-user' || 
+      if (e.code == 'popup-closed-by-user' ||
           e.code == 'cancelled-popup-request') {
         return Either.left(const AuthFailure('Google girişi iptal edildi'));
       }
@@ -162,18 +160,19 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       // Firebase'den çıkış yap
       await _auth.signOut();
-      
+
       // Google Sign-In'den de çıkış yap (eğer varsa - mobil platformlar için)
       // Web için Firebase Auth signOut yeterli
-      if (_googleSignIn != null) {
+      final googleSignIn = _googleSignIn;
+      if (googleSignIn != null) {
         try {
-          await _googleSignIn!.signOut();
+          await googleSignIn.signOut();
         } catch (e) {
           // Google Sign-In çıkış hatası kritik değil
           debugPrint('Google Sign-In signOut error (non-critical): $e');
         }
       }
-      
+
       return Either.right(null);
     } catch (e) {
       return Either.left(ServerFailure(e.toString()));
@@ -229,4 +228,3 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 }
-
