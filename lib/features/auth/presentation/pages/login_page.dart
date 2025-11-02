@@ -30,12 +30,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     debugPrint('🔵 LoginPage initState çağrıldı');
     debugPrint('🔵 Widget key: ${widget.key}');
 
-    // Önce SharedPreferences'ı kontrol et - HEMEN başlat
-    _loadRememberedEmail();
-
-    // Eğer Firebase session açıksa ve remember me varsa, otomatik giriş yap
+    // SharedPreferences verilerini yükle - widget mount olduktan sonra
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAutoLogin();
+      _loadRememberedEmail().then((_) {
+        // Veriler yüklendikten sonra otomatik giriş kontrolü yap
+        _checkAutoLogin();
+      });
     });
   }
 
@@ -129,74 +129,82 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
   }
 
-  /// Kaydedilmiş bilgileri yükle
+  /// Kaydedilmiş bilgileri yükle ve form alanlarını doldur
   Future<void> _loadRememberedEmail() async {
+    if (!mounted) {
+      debugPrint('⚠️ Widget unmounted, veriler yüklenmeyecek');
+      return;
+    }
+
     debugPrint('🔵 _loadRememberedEmail çağrıldı');
     try {
-      // Tüm SharedPreferences verilerini göster (debug için)
-      await PreferencesHelper.debugPrintAll();
-
+      // SharedPreferences verilerini al
+      final rememberMe = await PreferencesHelper.getRememberMe();
       final rememberedEmail = await PreferencesHelper.getRememberedEmail();
       final rememberedPassword =
           await PreferencesHelper.getRememberedPassword();
-      final rememberMe = await PreferencesHelper.getRememberMe();
 
       debugPrint('🔍 Kaydedilmiş bilgiler kontrol ediliyor...');
-      debugPrint('   📧 Email: $rememberedEmail');
+      debugPrint('   ✓ Remember Me: $rememberMe');
+      debugPrint(
+        '   📧 Email: ${rememberedEmail != null ? rememberedEmail : "yok"}',
+      );
       debugPrint(
         '   🔑 Şifre: ${rememberedPassword != null ? "${rememberedPassword.length} karakter" : "yok"}',
       );
-      debugPrint('   ✓ Remember Me: $rememberMe');
-      debugPrint('   📱 Widget mounted: $mounted');
 
       if (!mounted) {
-        debugPrint('⚠️ Widget unmounted, veriler yüklenmeyecek');
+        debugPrint('⚠️ Widget unmounted (yükleme sırasında)');
         return;
       }
 
-      if (rememberMe) {
-        debugPrint('✅ Remember me aktif, veriler yükleniyor...');
-        bool emailLoaded = false;
-        bool passwordLoaded = false;
+      // Remember me aktifse form alanlarını doldur
+      if (rememberMe &&
+          (rememberedEmail != null || rememberedPassword != null)) {
+        debugPrint('✅ Remember me aktif, form alanları dolduruluyor...');
 
         if (rememberedEmail != null && rememberedEmail.isNotEmpty) {
           _emailController.text = rememberedEmail;
-          emailLoaded = true;
-          debugPrint('   ✅ Email yüklendi: $rememberedEmail');
-        } else {
-          debugPrint('   ❌ Email null veya boş');
+          debugPrint('   ✅ Email form alanına yüklendi: $rememberedEmail');
         }
 
         if (rememberedPassword != null && rememberedPassword.isNotEmpty) {
           _passwordController.text = rememberedPassword;
-          passwordLoaded = true;
           debugPrint(
-            '   ✅ Şifre yüklendi: ${rememberedPassword.length} karakter',
+            '   ✅ Şifre form alanına yüklendi: ${rememberedPassword.length} karakter',
           );
-        } else {
-          debugPrint('   ❌ Şifre null veya boş');
         }
 
+        // UI'ı güncelle
         setState(() {
           _rememberMe = true;
         });
 
         debugPrint('   ✅ Remember Me checkbox işaretlendi');
-
-        if (emailLoaded || passwordLoaded) {
-          debugPrint('✅ Bilgiler başarıyla yüklendi ve setState çağrıldı');
-        } else {
-          debugPrint('⚠️ Hiçbir veri yüklenemedi');
-        }
+        debugPrint('✅ Tüm bilgiler başarıyla yüklendi');
       } else {
-        debugPrint('ℹ️ Remember me kapalı, veriler yüklenmeyecek');
-        setState(() {
-          _rememberMe = false;
-        });
+        debugPrint(
+          'ℹ️ Remember me kapalı veya veri yok, form alanları boş bırakılıyor',
+        );
+
+        // Remember me kapalıysa form alanlarını temizle
+        if (!rememberMe) {
+          setState(() {
+            _rememberMe = false;
+            _emailController.clear();
+            _passwordController.clear();
+          });
+        }
       }
     } catch (e, stackTrace) {
       debugPrint('❌ Remember bilgileri yükleme hatası: $e');
       debugPrint('Stack trace: $stackTrace');
+
+      if (mounted) {
+        setState(() {
+          _rememberMe = false;
+        });
+      }
     }
   }
 
@@ -241,98 +249,37 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           if (user != null && mounted) {
             setState(() => _isLoading = false);
 
-            // Beni Hatırla işlemi - ÖNCE KAYDET, SONRA NAVIGATE ET
+            // Beni Hatırla işlemi - Verileri kaydet veya temizle
             if (rememberMe) {
-              debugPrint('💾 Remember me AÇIK - Veriler kaydediliyor...');
+              debugPrint('💾 Remember me AÇIK - Bilgiler kaydediliyor...');
               try {
-                // Tüm bilgileri TEK TEK kaydet (Web'de daha güvenilir)
-                debugPrint('   💾 Email kaydediliyor...');
+                // Bilgileri kaydet
                 await PreferencesHelper.saveEmail(email);
-                debugPrint('   ✅ Email kaydedildi');
-
-                debugPrint('   💾 Şifre kaydediliyor...');
                 await PreferencesHelper.savePassword(password);
-                debugPrint('   ✅ Şifre kaydedildi');
-
-                debugPrint('   💾 Remember Me durumu kaydediliyor...');
                 await PreferencesHelper.setRememberMe(true);
-                debugPrint('   ✅ Remember Me kaydedildi');
 
                 // İsim varsa ekle
                 if (user.name != null && user.name!.isNotEmpty) {
-                  debugPrint('   💾 İsim kaydediliyor...');
                   await PreferencesHelper.saveName(user.name!);
-                  debugPrint('   ✅ İsim kaydedildi');
                 }
 
-                debugPrint('✅ Tüm kaydetme işlemleri tamamlandı (tek tek)');
-
-                // Kayıtları doğrula (hemen kontrol et)
-                await PreferencesHelper.debugPrintAll();
-
-                // Kaydedilen değerleri tekrar oku ve doğrula
-                final savedEmail = await PreferencesHelper.getRememberedEmail();
-                final savedPassword =
-                    await PreferencesHelper.getRememberedPassword();
-                final savedRememberMe = await PreferencesHelper.getRememberMe();
-
-                debugPrint('📋 Kaydedilen değerler doğrulandı:');
-                debugPrint('   📧 Saved Email: $savedEmail (beklenen: $email)');
-                debugPrint(
-                  '   🔑 Saved Password: ${savedPassword != null ? "${savedPassword.length} karakter" : "null"} (beklenen: ${password.length} karakter)',
-                );
-                debugPrint(
-                  '   ✓ Saved Remember Me: $savedRememberMe (beklenen: true)',
-                );
-
-                if (savedEmail == email &&
-                    savedPassword == password &&
-                    savedRememberMe == true) {
-                  debugPrint(
-                    '✅ Tüm veriler başarıyla kaydedildi ve doğrulandı!',
-                  );
-                } else {
-                  debugPrint(
-                    '⚠️ Veri doğrulama başarısız! Beklenen değerler kaydedilmemiş olabilir.',
-                  );
-                }
-
-                debugPrint('✅ Bilgiler başarıyla kaydedildi:');
+                debugPrint('✅ Bilgiler başarıyla kaydedildi');
                 debugPrint('   📧 Email: $email');
                 debugPrint('   🔑 Şifre: ${password.length} karakter');
-                debugPrint('   👤 İsim: ${user.name ?? "yok"}');
                 debugPrint('   ✓ Remember Me: true');
-
-                // Kısa bir gecikme ekle (SharedPreferences'ın commit edilmesi için)
-                await Future.delayed(const Duration(milliseconds: 500));
-
-                // Final kontrol - tekrar oku ve doğrula
-                debugPrint(
-                  '🔍 Final kontrol - localStorage\'dan tekrar okuyoruz...',
-                );
-                await PreferencesHelper.debugPrintAll();
-
-                // Kaydetme başarılı olduktan SONRA navigate et
-                if (mounted) {
-                  context.go(RouteNames.home);
-                }
               } catch (e) {
                 debugPrint('❌ Bilgiler kaydedilirken hata: $e');
-                // Hata olsa bile navigate et
-                if (mounted) {
-                  context.go(RouteNames.home);
-                }
               }
             } else {
-              // Remember me kapalıysa temizle (async beklemeden)
-              PreferencesHelper.clearRememberMe().then((_) {
-                debugPrint('🗑️ Remember me verileri temizlendi');
-              });
+              // Remember me kapalıysa verileri temizle
+              debugPrint('🗑️ Remember me KAPALI - Veriler temizleniyor...');
+              await PreferencesHelper.clearRememberMe();
+              debugPrint('✅ Remember me verileri temizlendi');
+            }
 
-              // Navigate et
-              if (mounted) {
-                context.go(RouteNames.home);
-              }
+            // Navigate et
+            if (mounted) {
+              context.go(RouteNames.home);
             }
           }
         },
@@ -350,28 +297,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               if (user != null && mounted) {
                 setState(() => _isLoading = false);
 
-                // Beni Hatırla işlemi - ÖNCE KAYDET, SONRA NAVIGATE ET
+                // Beni Hatırla işlemi
                 if (rememberMe) {
                   try {
-                    final saveOperations = <Future>[
-                      PreferencesHelper.saveEmail(email),
-                      PreferencesHelper.savePassword(password),
-                      PreferencesHelper.setRememberMe(true),
-                    ];
+                    await PreferencesHelper.saveEmail(email);
+                    await PreferencesHelper.savePassword(password);
+                    await PreferencesHelper.setRememberMe(true);
 
                     if (user.name != null && user.name!.isNotEmpty) {
-                      saveOperations.add(
-                        PreferencesHelper.saveName(user.name!),
-                      );
+                      await PreferencesHelper.saveName(user.name!);
                     }
 
-                    // Kaydetme işleminin tamamlanmasını bekle
-                    await Future.wait(saveOperations);
-                    debugPrint('✅ Bilgiler başarıyla kaydedildi (retry):');
-                    debugPrint('   📧 Email: $email');
+                    debugPrint('✅ Bilgiler başarıyla kaydedildi (retry)');
                   } catch (e) {
                     debugPrint('❌ Bilgiler kaydedilirken hata (retry): $e');
                   }
+                } else {
+                  await PreferencesHelper.clearRememberMe();
                 }
 
                 // Navigate et
