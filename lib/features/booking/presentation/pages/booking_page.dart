@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/route_names.dart';
 import '../../../../core/data/dummy_data.dart';
+import '../../../../core/firebase/firebase_service.dart';
 import '../../../aircraft/data/models/aircraft_model.dart';
 
 /// Rezervasyon sayfası
@@ -25,7 +28,21 @@ class _BookingPageState extends State<BookingPage> {
   @override
   void initState() {
     super.initState();
-    _loadAircraft();
+    // Login kontrolü - eğer kullanıcı giriş yapmamışsa login'e yönlendir
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = FirebaseService.currentUser;
+      if (user == null && mounted) {
+        context.go(RouteNames.login);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Rezervasyon yapmak için lütfen giriş yapın'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+      _loadAircraft();
+    });
   }
 
   @override

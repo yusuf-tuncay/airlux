@@ -14,19 +14,42 @@ import '../../core/firebase/firebase_service.dart';
 
 /// Uygulama routing yapılandırması
 final appRouter = GoRouter(
-  initialLocation: RouteNames.login,
+  initialLocation: RouteNames.home,
   redirect: (context, state) {
     final user = FirebaseService.currentUser;
     final currentPath = state.uri.path;
     
+    // Public sayfalar - herkese açık (login gerektirmez)
+    final publicPaths = [
+      RouteNames.home,
+      RouteNames.search,
+      RouteNames.login,
+      RouteNames.register,
+    ];
+    
+    // Protected sayfalar - sadece giriş yapmış kullanıcılar erişebilir
+    final protectedPaths = [
+      RouteNames.bookings,
+      RouteNames.profile,
+      RouteNames.settings,
+    ];
+    
+    // Aircraft detail sayfası public (yol path kontrolü)
+    final isAircraftDetail = currentPath.startsWith('/aircraft/');
+    
+    // Booking sayfası protected (yol path kontrolü)
+    final isBookingPage = currentPath.startsWith('/booking/');
+    
     // Eğer kullanıcı giriş yapmamışsa
     if (user == null) {
-      // Login ve register sayfalarına erişebilir
-      if (currentPath == RouteNames.login || currentPath == RouteNames.register) {
+      // Public sayfalara erişebilir
+      if (publicPaths.contains(currentPath) || isAircraftDetail) {
         return null;
       }
-      // Diğer sayfalara erişmeye çalışıyorsa login'e yönlendir
-      return RouteNames.login;
+      // Protected sayfalara veya booking sayfasına erişmeye çalışıyorsa login'e yönlendir
+      if (protectedPaths.contains(currentPath) || isBookingPage) {
+        return RouteNames.login;
+      }
     }
     
     // NOT: Telefon numarası kontrolü GEÇİCİ OLARAK KALDIRILDI

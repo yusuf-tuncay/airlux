@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/route_names.dart';
 import '../../../../core/data/dummy_data.dart';
+import '../../../../core/firebase/firebase_service.dart';
 import '../../data/models/aircraft_model.dart';
 
 /// Uçak detay sayfası
@@ -184,7 +186,21 @@ class AircraftDetailPage extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        context.push('/booking/${aircraft.id}');
+                        // Login kontrolü
+                        final user = FirebaseService.currentUser;
+                        if (user == null) {
+                          // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+                          context.go(RouteNames.login);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Rezervasyon yapmak için lütfen giriş yapın'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        } else {
+                          // Giriş yapmışsa booking sayfasına git
+                          context.push('/booking/${aircraft.id}');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),

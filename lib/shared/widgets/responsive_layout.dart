@@ -69,7 +69,7 @@ class ResponsiveScaffold extends StatelessWidget {
         floatingActionButton: floatingActionButton,
         bottomNavigationBar: bottomNavIndex != null && onBottomNavTap != null
             ? BottomNavigationBar(
-                currentIndex: bottomNavIndex!,
+                currentIndex: bottomNavIndex! < 4 ? bottomNavIndex! : 0, // 0-3 arası olmalı (4 öğe var)
                 onTap: onBottomNavTap,
                 type: BottomNavigationBarType.fixed,
                 selectedItemColor: Theme.of(context).colorScheme.primary,
