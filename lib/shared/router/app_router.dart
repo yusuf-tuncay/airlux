@@ -3,9 +3,13 @@ import '../../core/constants/route_names.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/phone_number_page.dart';
+import '../../features/auth/presentation/pages/profile_page.dart';
+import '../../features/auth/presentation/pages/settings_page.dart';
 import '../../features/aircraft/presentation/pages/home_page.dart';
 import '../../features/aircraft/presentation/pages/aircraft_detail_page.dart';
+import '../../features/aircraft/presentation/pages/search_page.dart';
 import '../../features/booking/presentation/pages/booking_page.dart';
+import '../../features/booking/presentation/pages/bookings_page.dart';
 import '../../core/firebase/firebase_service.dart';
 
 /// Uygulama routing yapılandırması
@@ -53,6 +57,22 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteNames.home,
       builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: RouteNames.search,
+      builder: (context, state) => const SearchPage(),
+    ),
+    GoRoute(
+      path: RouteNames.bookings,
+      builder: (context, state) => const BookingsPage(),
+    ),
+    GoRoute(
+      path: RouteNames.profile,
+      builder: (context, state) => const ProfilePage(),
+    ),
+    GoRoute(
+      path: RouteNames.settings,
+      builder: (context, state) => const SettingsPage(),
     ),
     GoRoute(
       path: '/aircraft/:id',

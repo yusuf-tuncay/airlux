@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/route_names.dart';
 import '../../../../core/data/dummy_data.dart';
 import '../../../../shared/widgets/responsive_layout.dart';
 import '../../../../core/utils/responsive.dart';
@@ -15,16 +16,17 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
-  List<AircraftModel> _aircrafts = DummyData.getDummyAircrafts();
+  final List<AircraftModel> _aircrafts = DummyData.getDummyAircrafts();
   List<AircraftModel> _filteredAircrafts = [];
   final TextEditingController _searchController = TextEditingController();
-  
+
   // Filtreleme
   AircraftType? _selectedType;
   String _sortBy = 'price'; // price, rating, name
-  
+
   AnimationController? _fadeController;
   Animation<double>? _fadeAnimation;
 
@@ -32,7 +34,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _filteredAircrafts = _aircrafts;
-    
+
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -42,7 +44,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       curve: Curves.easeOut,
     );
     _fadeController!.forward();
-    
+
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -62,17 +64,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       _filteredAircrafts = _aircrafts.where((aircraft) {
         // Arama filtresi
         final searchQuery = _searchController.text.toLowerCase();
-        final matchesSearch = searchQuery.isEmpty ||
+        final matchesSearch =
+            searchQuery.isEmpty ||
             aircraft.name.toLowerCase().contains(searchQuery) ||
             aircraft.manufacturer.toLowerCase().contains(searchQuery) ||
             aircraft.type.toString().toLowerCase().contains(searchQuery);
-        
+
         // Tip filtresi
-        final matchesType = _selectedType == null || aircraft.type == _selectedType;
-        
+        final matchesType =
+            _selectedType == null || aircraft.type == _selectedType;
+
         return matchesSearch && matchesType;
       }).toList();
-      
+
       // Sıralama
       _sortAircrafts();
     });
@@ -81,7 +85,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void _sortAircrafts() {
     switch (_sortBy) {
       case 'price':
-        _filteredAircrafts.sort((a, b) => a.pricePerHour.compareTo(b.pricePerHour));
+        _filteredAircrafts.sort(
+          (a, b) => a.pricePerHour.compareTo(b.pricePerHour),
+        );
         break;
       case 'rating':
         _filteredAircrafts.sort((a, b) => b.rating.compareTo(a.rating));
@@ -96,12 +102,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() {
       _selectedIndex = index;
     });
+
+    // Navigate to corresponding page
+    switch (index) {
+      case 0:
+        context.go(RouteNames.home);
+        break;
+      case 1:
+        context.go(RouteNames.search);
+        break;
+      case 2:
+        context.go(RouteNames.bookings);
+        break;
+      case 3:
+        context.go(RouteNames.profile);
+        break;
+      case 4:
+        context.go(RouteNames.settings);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
-    
+
     return ResponsiveScaffold(
       title: null, // Custom AppBar yapacağız
       bottomNavIndex: _selectedIndex,
@@ -119,15 +144,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return CustomScrollView(
       slivers: [
         // Premium Header Section
-        SliverToBoxAdapter(
-          child: _buildHeader(context, isMobile),
-        ),
-        
+        SliverToBoxAdapter(child: _buildHeader(context, isMobile)),
+
         // Filters & Search
-        SliverToBoxAdapter(
-          child: _buildFiltersSection(context, isMobile),
-        ),
-        
+        SliverToBoxAdapter(child: _buildFiltersSection(context, isMobile)),
+
         // Results Count
         if (_filteredAircrafts.length != _aircrafts.length)
           SliverToBoxAdapter(
@@ -149,20 +170,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
           ),
-        
+
         // Aircraft Grid/List
         _filteredAircrafts.isEmpty
-            ? SliverFillRemaining(
-                child: _buildEmptyState(),
-              )
+            ? SliverFillRemaining(child: _buildEmptyState())
             : isMobile
-                ? _buildMobileSliverList()
-                : _buildDesktopSliverGrid(),
-        
+            ? _buildMobileSliverList()
+            : _buildDesktopSliverGrid(),
+
         // Footer
-        SliverToBoxAdapter(
-          child: _buildFooter(isMobile),
-        ),
+        SliverToBoxAdapter(child: _buildFooter(isMobile)),
       ],
     );
   }
@@ -178,10 +195,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            AppColors.primaryDark,
-            AppColors.secondaryDark,
-          ],
+          colors: [AppColors.primaryDark, AppColors.secondaryDark],
         ),
         border: Border(
           top: BorderSide(
@@ -205,10 +219,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    AppColors.goldMedium,
-                    AppColors.gold,
-                  ],
+                  colors: [AppColors.goldMedium, AppColors.gold],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
@@ -251,7 +262,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ],
         ),
         const SizedBox(height: 32),
-        
+
         // Links
         _buildFooterSection(
           title: 'Hizmetler',
@@ -265,12 +276,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         const SizedBox(height: 24),
         _buildFooterSection(
           title: 'Şirket',
-          items: [
-            'Hakkımızda',
-            'Galeri',
-            'İletişim',
-            'Kariyer',
-          ],
+          items: ['Hakkımızda', 'Galeri', 'İletişim', 'Kariyer'],
         ),
         const SizedBox(height: 24),
         _buildFooterSection(
@@ -283,11 +289,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ],
         ),
         const SizedBox(height: 32),
-        
+
         // Social Media
         _buildSocialMedia(),
         const SizedBox(height: 32),
-        
+
         // Copyright
         const Divider(color: AppColors.borderMedium),
         const SizedBox(height: 24),
@@ -323,15 +329,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [
-                              AppColors.goldMedium,
-                              AppColors.gold,
-                            ],
+                            colors: [AppColors.goldMedium, AppColors.gold],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.goldMedium.withValues(alpha: 0.3),
+                              color: AppColors.goldMedium.withValues(
+                                alpha: 0.3,
+                              ),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -385,7 +390,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
             const SizedBox(width: 48),
-            
+
             // Services
             Expanded(
               child: _buildFooterSection(
@@ -398,20 +403,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ],
               ),
             ),
-            
+
             // Company
             Expanded(
               child: _buildFooterSection(
                 title: 'Şirket',
-                items: [
-                  'Hakkımızda',
-                  'Galeri',
-                  'İletişim',
-                  'Kariyer',
-                ],
+                items: ['Hakkımızda', 'Galeri', 'İletişim', 'Kariyer'],
               ),
             ),
-            
+
             // Support
             Expanded(
               child: _buildFooterSection(
@@ -484,25 +484,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
         ),
         const SizedBox(height: 16),
-        ...items.map((item) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () {
-                // TODO: Navigate to page
-              },
-              child: Text(
-                item,
-                style: TextStyle(
-                  color: AppColors.textSecondary.withValues(alpha: 0.7),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  // TODO: Navigate to page
+                },
+                child: Text(
+                  item,
+                  style: TextStyle(
+                    color: AppColors.textSecondary.withValues(alpha: 0.7),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
             ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -678,16 +680,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Quick Filters & Sort
           Row(
             children: [
               // Filter Button
-              Expanded(
-                child: _buildFilterChips(isMobile),
-              ),
+              Expanded(child: _buildFilterChips(isMobile)),
               const SizedBox(width: 12),
               // Sort Button
               _buildSortButton(context, isMobile),
@@ -766,10 +766,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           const SizedBox(height: 8),
           Text(
             'Filtreleri değiştirerek tekrar deneyin',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textTertiary,
-            ),
+            style: TextStyle(fontSize: 14, color: AppColors.textTertiary),
           ),
         ],
       ),
@@ -780,16 +777,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final aircraft = _filteredAircrafts[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: _buildAircraftCard(aircraft, context),
-            );
-          },
-          childCount: _filteredAircrafts.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final aircraft = _filteredAircrafts[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildAircraftCard(aircraft, context),
+          );
+        }, childCount: _filteredAircrafts.length),
       ),
     );
   }
@@ -804,310 +798,619 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           mainAxisSpacing: 20,
           childAspectRatio: Responsive.isTablet(context) ? 0.8 : 0.75,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final aircraft = _filteredAircrafts[index];
-            return _buildAircraftCard(aircraft, context);
-          },
-          childCount: _filteredAircrafts.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final aircraft = _filteredAircrafts[index];
+          return _buildAircraftCard(aircraft, context);
+        }, childCount: _filteredAircrafts.length),
       ),
     );
   }
 
   Widget _buildAircraftCard(AircraftModel aircraft, BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: AppColors.backgroundCard,
-        border: Border.all(
-          color: AppColors.borderMedium.withValues(alpha: 0.3),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            context.push('/aircraft/${aircraft.id}');
-          },
-          borderRadius: BorderRadius.circular(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image Section
-              Expanded(
-                flex: 4,
-                child: Stack(
-                  children: [
-                    // Background Image or Gradient
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primaryDarkLight,
-                            AppColors.secondaryDark,
-                            AppColors.primaryDark,
-                          ],
-                        ),
-                      ),
-                      child: aircraft.imageUrls.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                topRight: Radius.circular(16),
-                              ),
-                              child: CachedNetworkImage(
-                                imageUrl: aircraft.imageUrls.first,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.goldMedium.withValues(alpha: 0.5),
-                                    ),
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) => Center(
-                                  child: Icon(
-                                    aircraft.type == AircraftType.helicopter
-                                        ? Icons.flight
-                                        : Icons.flight_takeoff,
-                                    size: 64,
-                                    color: AppColors.gold.withValues(alpha: 0.3),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Center(
-                              child: Icon(
-                                aircraft.type == AircraftType.helicopter
-                                    ? Icons.flight
-                                    : Icons.flight_takeoff,
-                                size: 64,
-                                color: AppColors.gold.withValues(alpha: 0.3),
-                              ),
-                            ),
-                    ),
-                    
-                    // Availability Badge
-                    if (aircraft.isAvailable)
-                      Positioned(
-                        top: 12,
-                        right: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.success,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.success.withValues(alpha: 0.4),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              const Text(
-                                'Müsait',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    
-                    // Type Badge
-                    Positioned(
-                      top: 12,
-                      left: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.goldMedium.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: AppColors.goldMedium.withValues(alpha: 0.5),
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          _getTypeLabel(aircraft.type),
-                          style: TextStyle(
-                            color: AppColors.goldMedium,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    // Gradient Overlay
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              AppColors.backgroundCard.withValues(alpha: 0.8),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return _PremiumAircraftCard(
+      aircraft: aircraft,
+      onTap: () {
+        context.push('/aircraft/${aircraft.id}');
+      },
+    );
+  }
+}
 
-              // Info Section
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+/// Premium Aircraft Card with hover effects and animations
+class _PremiumAircraftCard extends StatefulWidget {
+  final AircraftModel aircraft;
+  final VoidCallback onTap;
+
+  const _PremiumAircraftCard({required this.aircraft, required this.onTap});
+
+  @override
+  State<_PremiumAircraftCard> createState() => _PremiumAircraftCardState();
+}
+
+class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
+    with SingleTickerProviderStateMixin {
+  bool _isHovered = false;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _elevationAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
+    _elevationAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _handleHoverEnter() {
+    setState(() => _isHovered = true);
+    _animationController.forward();
+  }
+
+  void _handleHoverExit() {
+    setState(() => _isHovered = false);
+    _animationController.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final range = widget.aircraft.specifications['range'] as String? ?? 'N/A';
+
+    return MouseRegion(
+      onEnter: (_) => _handleHoverEnter(),
+      onExit: (_) => _handleHoverExit(),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: _isHovered
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.backgroundCard,
+                          AppColors.backgroundCard.withValues(alpha: 0.95),
+                          AppColors.primaryDarkLight.withValues(alpha: 0.3),
+                        ],
+                      )
+                    : null,
+                color: !_isHovered ? AppColors.backgroundCard : null,
+                border: Border.all(
+                  color: _isHovered
+                      ? AppColors.goldMedium.withValues(alpha: 0.4)
+                      : AppColors.borderMedium.withValues(alpha: 0.2),
+                  width: _isHovered ? 1.5 : 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _isHovered
+                        ? AppColors.goldMedium.withValues(alpha: 0.15)
+                        : Colors.black.withValues(alpha: 0.15),
+                    blurRadius: _elevationAnimation.value + 12,
+                    offset: Offset(0, _elevationAnimation.value + 4),
+                    spreadRadius: _isHovered ? 2 : 0,
+                  ),
+                  if (_isHovered)
+                    BoxShadow(
+                      color: AppColors.goldMedium.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                      spreadRadius: 1,
+                    ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: widget.onTap,
+                  borderRadius: BorderRadius.circular(20),
+                  splashColor: AppColors.goldMedium.withValues(alpha: 0.1),
+                  highlightColor: AppColors.goldMedium.withValues(alpha: 0.05),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Name & Manufacturer
-                      Text(
-                        aircraft.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                          letterSpacing: 0.3,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        aircraft.manufacturer,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w300,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      
-                      const Spacer(),
-                      
-                      // Rating
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            size: 16,
-                            color: AppColors.goldMedium,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            aircraft.rating.toStringAsFixed(1),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '(${aircraft.reviewCount})',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textTertiary,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 12),
-                      
-                      // Passenger & Price
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.person_outline,
-                                size: 16,
-                                color: AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${aircraft.passengerCapacity}',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w400,
+                      // Image Section with enhanced design
+                      Expanded(
+                        flex: 5,
+                        child: Stack(
+                          children: [
+                            // Background Image
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20),
                                 ),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    AppColors.primaryDarkLight,
+                                    AppColors.secondaryDark,
+                                    AppColors.primaryDark,
+                                  ],
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20),
+                                ),
+                                child: widget.aircraft.imageUrls.isNotEmpty
+                                    ? AnimatedOpacity(
+                                        opacity: _isHovered ? 0.9 : 1.0,
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        child: CachedNetworkImage(
+                                          imageUrl:
+                                              widget.aircraft.imageUrls.first,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) => Container(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  AppColors.primaryDarkLight,
+                                                  AppColors.secondaryDark,
+                                                ],
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2.5,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(
+                                                      AppColors.goldMedium
+                                                          .withValues(
+                                                            alpha: 0.6,
+                                                          ),
+                                                    ),
+                                              ),
+                                            ),
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      AppColors
+                                                          .primaryDarkLight,
+                                                      AppColors.secondaryDark,
+                                                    ],
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Icon(
+                                                    widget.aircraft.type ==
+                                                            AircraftType
+                                                                .helicopter
+                                                        ? Icons.flight_rounded
+                                                        : Icons
+                                                              .flight_takeoff_rounded,
+                                                    size: 72,
+                                                    color: AppColors.gold
+                                                        .withValues(
+                                                          alpha: 0.25,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                        ),
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppColors.primaryDarkLight,
+                                              AppColors.secondaryDark,
+                                            ],
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            widget.aircraft.type ==
+                                                    AircraftType.helicopter
+                                                ? Icons.flight_rounded
+                                                : Icons.flight_takeoff_rounded,
+                                            size: 72,
+                                            color: AppColors.gold.withValues(
+                                              alpha: 0.25,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ),
+
+                            // Animated Gradient Overlay
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20),
+                                ),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.transparent,
+                                    _isHovered
+                                        ? AppColors.goldMedium.withValues(
+                                            alpha: 0.08,
+                                          )
+                                        : AppColors.backgroundCard.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                    AppColors.backgroundCard.withValues(
+                                      alpha: 0.95,
+                                    ),
+                                  ],
+                                  stops: const [0.0, 0.5, 0.8, 1.0],
+                                ),
+                              ),
+                            ),
+
+                            // Availability Badge with pulse effect
+                            if (widget.aircraft.isAvailable)
+                              Positioned(
+                                top: 14,
+                                right: 14,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 7,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.success,
+                                    borderRadius: BorderRadius.circular(22),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      width: 1,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.success.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                        blurRadius: _isHovered ? 12 : 8,
+                                        spreadRadius: _isHovered ? 2 : 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 7,
+                                        height: 7,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.8,
+                                              ),
+                                              blurRadius: 4,
+                                              spreadRadius: 1,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Müsait',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.8,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            // Type Badge with enhanced design
+                            Positioned(
+                              top: 14,
+                              left: 14,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 7,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _isHovered
+                                      ? AppColors.goldMedium.withValues(
+                                          alpha: 0.25,
+                                        )
+                                      : AppColors.goldMedium.withValues(
+                                          alpha: 0.18,
+                                        ),
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                    color: AppColors.goldMedium.withValues(
+                                      alpha: _isHovered ? 0.8 : 0.5,
+                                    ),
+                                    width: _isHovered ? 1.5 : 1,
+                                  ),
+                                  boxShadow: _isHovered
+                                      ? [
+                                          BoxShadow(
+                                            color: AppColors.goldMedium
+                                                .withValues(alpha: 0.3),
+                                            blurRadius: 8,
+                                            spreadRadius: 1,
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Text(
+                                  _getTypeLabel(widget.aircraft.type),
+                                  style: TextStyle(
+                                    color: AppColors.goldMedium,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Enhanced Info Section
+                      Expanded(
+                        flex: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Name with hover effect
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
+                                style: TextStyle(
+                                  fontSize: _isHovered ? 19.5 : 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                  letterSpacing: 0.4,
+                                  height: 1.2,
+                                ),
+                                child: Text(
+                                  widget.aircraft.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              // Manufacturer
+                              Text(
+                                widget.aircraft.manufacturer,
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  color: AppColors.textSecondary.withValues(
+                                    alpha: 0.9,
+                                  ),
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0.2,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+
+                              const Spacer(),
+
+                              // Specifications Row
+                              Row(
+                                children: [
+                                  // Range
+                                  Expanded(
+                                    child: _buildSpecItem(
+                                      icon: Icons.flight_takeoff_rounded,
+                                      value: range,
+                                      label: 'Menzil',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  // Capacity
+                                  Expanded(
+                                    child: _buildSpecItem(
+                                      icon: Icons.people_rounded,
+                                      value:
+                                          '${widget.aircraft.passengerCapacity}',
+                                      label: 'Kişi',
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 14),
+
+                              // Rating and Price Row
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Rating with enhanced design
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.goldMedium.withValues(
+                                        alpha: 0.12,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: AppColors.goldMedium.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.star_rounded,
+                                          size: 16,
+                                          color: AppColors.goldMedium,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          widget.aircraft.rating
+                                              .toStringAsFixed(1),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.goldMedium,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '(${widget.aircraft.reviewCount})',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: AppColors.textTertiary
+                                                .withValues(alpha: 0.8),
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Price with premium gradient
+                                  ShaderMask(
+                                    shaderCallback: (bounds) => AppColors
+                                        .premiumGoldGradient
+                                        .createShader(bounds),
+                                    child: AnimatedDefaultTextStyle(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: _isHovered ? 19 : 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        letterSpacing: 0.8,
+                                      ),
+                                      child: Text(
+                                        '\$${(widget.aircraft.pricePerHour / 1000).toStringAsFixed(0)}K/saat',
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                          ShaderMask(
-                            shaderCallback: (bounds) =>
-                                AppColors.premiumGoldGradient.createShader(bounds),
-                            child: Text(
-                              '\$${aircraft.pricePerHour.toStringAsFixed(0)}/saat',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSpecItem({
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.primaryDarkLight.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppColors.borderMedium.withValues(alpha: 0.2),
+          width: 1,
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: AppColors.textSecondary.withValues(alpha: 0.8),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: AppColors.textTertiary.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1166,15 +1469,15 @@ class _TypeChipWidgetState extends State<_TypeChipWidget> {
             color: widget.isSelected
                 ? AppColors.goldMedium
                 : _isHovered
-                    ? AppColors.goldMedium.withValues(alpha: 0.15)
-                    : AppColors.primaryDark.withValues(alpha: 0.6),
+                ? AppColors.goldMedium.withValues(alpha: 0.15)
+                : AppColors.primaryDark.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: widget.isSelected
                   ? AppColors.goldMedium
                   : _isHovered
-                      ? AppColors.goldMedium.withValues(alpha: 0.6)
-                      : AppColors.borderMedium.withValues(alpha: 0.5),
+                  ? AppColors.goldMedium.withValues(alpha: 0.6)
+                  : AppColors.borderMedium.withValues(alpha: 0.5),
               width: _isHovered && !widget.isSelected ? 1.5 : 1,
             ),
             boxShadow: widget.isSelected
@@ -1186,14 +1489,14 @@ class _TypeChipWidgetState extends State<_TypeChipWidget> {
                     ),
                   ]
                 : _isHovered
-                    ? [
-                        BoxShadow(
-                          color: AppColors.goldMedium.withValues(alpha: 0.2),
-                          blurRadius: 6,
-                          spreadRadius: 0.5,
-                        ),
-                      ]
-                    : null,
+                ? [
+                    BoxShadow(
+                      color: AppColors.goldMedium.withValues(alpha: 0.2),
+                      blurRadius: 6,
+                      spreadRadius: 0.5,
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             widget.label,
@@ -1201,8 +1504,8 @@ class _TypeChipWidgetState extends State<_TypeChipWidget> {
               color: widget.isSelected
                   ? AppColors.primaryDark
                   : _isHovered
-                      ? AppColors.goldMedium
-                      : AppColors.textSecondary,
+                  ? AppColors.goldMedium
+                  : AppColors.textSecondary,
               fontSize: widget.isMobile ? 12 : 13,
               fontWeight: widget.isSelected || _isHovered
                   ? FontWeight.w600
@@ -1348,4 +1651,3 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
     );
   }
 }
-

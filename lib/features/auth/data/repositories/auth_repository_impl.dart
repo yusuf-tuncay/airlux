@@ -1,9 +1,13 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/failures/failures.dart';
 import '../../../../core/firebase/firebase_service.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -176,6 +180,74 @@ class AuthRepositoryImpl implements AuthRepository {
       return Either.right(null);
     } catch (e) {
       return Either.left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadProfilePhoto({
+    required String filePath,
+    XFile? xFile,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return Either.left(const AuthFailure('Kullanıcı giriş yapmamış'));
+      }
+
+      // Upload photo to Firebase Storage
+      String downloadUrl;
+      if (kIsWeb) {
+        // Web için - XFile'dan bytes oku
+        if (xFile == null) {
+          return Either.left(
+            const ServerFailure('Web platformu için XFile gerekli'),
+          );
+        }
+        final Uint8List imageBytes = await xFile.readAsBytes();
+        downloadUrl = await StorageService.uploadProfilePhotoFromBytes(
+          imageBytes: imageBytes,
+          userId: user.uid,
+        );
+      } else {
+        // Mobil için - File kullan
+        final file = File(filePath);
+        if (!await file.exists()) {
+          return Either.left(const ServerFailure('Dosya bulunamadı'));
+        }
+        downloadUrl = await StorageService.uploadProfilePhoto(
+          imageFile: file,
+          userId: user.uid,
+        );
+      }
+
+      debugPrint('Uploaded photo URL: $downloadUrl');
+      
+      // Update Firebase Auth profile
+      await user.updatePhotoURL(downloadUrl);
+      debugPrint('Updated Firebase Auth photoURL');
+      
+      // Reload user to get updated photoURL
+      await user.reload();
+      final updatedUser = _auth.currentUser;
+      final finalPhotoUrl = updatedUser?.photoURL ?? downloadUrl;
+      debugPrint('Final photo URL after reload: $finalPhotoUrl');
+
+      // Update Firestore user document
+      try {
+        await FirebaseService.firestore
+            .collection('users')
+            .doc(user.uid)
+            .update({'photoUrl': finalPhotoUrl});
+        debugPrint('Updated Firestore photoUrl');
+      } catch (e) {
+        debugPrint('Firestore update error (non-critical): $e');
+        // Firestore hatası kritik değil, URL zaten Firebase Auth'da güncellendi
+      }
+
+      return Either.right(finalPhotoUrl);
+    } catch (e) {
+      debugPrint('Error uploading profile photo: $e');
+      return Either.left(ServerFailure('Fotoğraf yüklenirken hata: $e'));
     }
   }
 

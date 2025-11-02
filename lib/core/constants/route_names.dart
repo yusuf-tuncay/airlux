@@ -10,10 +10,12 @@ class RouteNames {
 
   // Main Routes
   static const String home = '/home';
+  static const String search = '/search';
+  static const String bookings = '/bookings';
+  static const String profile = '/profile';
+  static const String settings = '/settings';
   static const String aircraftDetail = '/aircraft/:id';
   static const String booking = '/booking/:id';
-  static const String profile = '/profile';
-  static const String bookings = '/bookings';
 
   // Admin Routes
   static const String admin = '/admin';

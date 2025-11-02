@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -96,6 +97,46 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
     result.fold(
       (failure) => state = AsyncValue.error(failure.message, StackTrace.current),
       (_) => state = const AsyncValue.data(null),
+    );
+  }
+
+  /// Profil fotoğrafı yükle
+  Future<void> uploadProfilePhoto(String filePath, {XFile? xFile}) async {
+    final currentState = state;
+    if (currentState.value == null) {
+      return;
+    }
+
+    final currentUser = currentState.value!;
+    state = const AsyncValue.loading();
+    final result = await _authRepository.uploadProfilePhoto(
+      filePath: filePath,
+      xFile: xFile,
+    );
+
+    result.fold(
+      (failure) {
+        state = AsyncValue.error(failure.message, StackTrace.current);
+        // Hata sonrası mevcut kullanıcıyı geri yükle
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _loadCurrentUser();
+        });
+      },
+      (photoUrl) async {
+        // Başarılı - Önce state'i güncelle, sonra Firebase'den doğrulayalım
+        final updatedUser = UserEntity(
+          id: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.name,
+          phone: currentUser.phone,
+          photoUrl: photoUrl,
+        );
+        state = AsyncValue.data(updatedUser);
+        
+        // Firebase Auth'tan güncel bilgiyi çek (async)
+        await Future.delayed(const Duration(milliseconds: 300));
+        _loadCurrentUser();
+      },
     );
   }
 }

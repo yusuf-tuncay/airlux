@@ -26,8 +26,8 @@ class AircraftDetailPage extends StatelessWidget {
 
     if (aircraft == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Aircraft Not Found')),
-        body: const Center(child: Text('Aircraft not found')),
+        appBar: AppBar(title: const Text('Uçak Bulunamadı')),
+        body: const Center(child: Text('Uçak bulunamadı')),
       );
     }
 
@@ -96,7 +96,7 @@ class AircraftDetailPage extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '(${aircraft.reviewCount} reviews)',
+                        '(${aircraft.reviewCount} değerlendirme)',
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.textSecondary,
@@ -104,7 +104,7 @@ class AircraftDetailPage extends StatelessWidget {
                       ),
                       const Spacer(),
                       Text(
-                        '\$${aircraft.pricePerHour.toStringAsFixed(0)}/hour',
+                        '\$${aircraft.pricePerHour.toStringAsFixed(0)}/saat',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -117,7 +117,7 @@ class AircraftDetailPage extends StatelessWidget {
 
                   // Description
                   const Text(
-                    'Description',
+                    'Açıklama',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -133,7 +133,7 @@ class AircraftDetailPage extends StatelessWidget {
 
                   // Specifications
                   const Text(
-                    'Specifications',
+                    'Özellikler',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
@@ -169,7 +169,7 @@ class AircraftDetailPage extends StatelessWidget {
                       Icon(Icons.people, color: AppColors.gold),
                       const SizedBox(width: 8),
                       Text(
-                        'Passenger Capacity: ${aircraft.passengerCapacity}',
+                        'Yolcu Kapasitesi: ${aircraft.passengerCapacity}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -190,7 +190,7 @@ class AircraftDetailPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: const Text(
-                        'Book Now',
+                        'Rezervasyon Yap',
                         style: TextStyle(fontSize: 18),
                       ),
                     ),

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 /// Firebase servisleri için base class
 class FirebaseService {
@@ -8,6 +9,9 @@ class FirebaseService {
 
   /// Firestore instance
   static FirebaseFirestore get firestore => FirebaseFirestore.instance;
+
+  /// Firebase Storage instance
+  static FirebaseStorage get storage => FirebaseStorage.instance;
 
   /// Firebase'i başlat
   /// Not: Firebase initialization artık main.dart'ta yapılıyor
