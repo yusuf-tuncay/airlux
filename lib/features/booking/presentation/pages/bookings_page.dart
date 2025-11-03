@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../shared/widgets/responsive_layout.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 /// Rezervasyonlar sayfası
-class BookingsPage extends StatefulWidget {
+class BookingsPage extends ConsumerStatefulWidget {
   const BookingsPage({super.key});
 
   @override
-  State<BookingsPage> createState() => _BookingsPageState();
+  ConsumerState<BookingsPage> createState() => _BookingsPageState();
 }
 
-class _BookingsPageState extends State<BookingsPage> {
+class _BookingsPageState extends ConsumerState<BookingsPage> {
   int _selectedIndex = 2;
 
   void _onNavTap(int index) {
@@ -42,6 +44,9 @@ class _BookingsPageState extends State<BookingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateProvider);
+    final isLoggedIn = authState.valueOrNull != null;
+
     return ResponsiveScaffold(
       title: null,
       bottomNavIndex: _selectedIndex,
@@ -88,35 +93,95 @@ class _BookingsPageState extends State<BookingsPage> {
             ),
           ),
           SliverFillRemaining(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.book_rounded,
-                    size: 64,
-                    color: AppColors.textSecondary.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Henüz rezervasyonunuz yok',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
+            child: isLoggedIn
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.book_rounded,
+                          size: 64,
+                          color: AppColors.textSecondary.withValues(alpha: 0.3),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Henüz rezervasyonunuz yok',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Uçak rezervasyonu yaptığınızda burada görünecek',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.lock_outline_rounded,
+                            size: 80,
+                            color: AppColors.textSecondary.withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Giriş Yapmanız Gerekiyor',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Rezervasyonlarınızı görüntülemek için\nhesabınıza giriş yapmalısınız',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textSecondary,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.go(RouteNames.login);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.goldMedium,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Giriş Yap',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Uçak rezervasyonu yaptığınızda burada görünecek',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),

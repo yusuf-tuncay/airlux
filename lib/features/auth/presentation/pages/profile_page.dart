@@ -59,51 +59,113 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       body: CustomScrollView(
         slivers: [
           authState.when(
-            data: (user) => SliverList(
-              delegate: SliverChildListDelegate([
-                // Profile Info Card
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isMobile ? 20 : 32,
-                    isMobile ? 20 : 28,
-                    isMobile ? 20 : 32,
-                    24,
+            data: (user) => user == null
+                ? SliverFillRemaining(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.lock_outline_rounded,
+                              size: 80,
+                              color: AppColors.textSecondary.withValues(alpha: 0.5),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Giriş Yapmanız Gerekiyor',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Profil bilgilerinizi görüntülemek için\nhesabınıza giriş yapmalısınız',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textSecondary,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            ElevatedButton(
+                              onPressed: () {
+                                context.go(RouteNames.login);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.goldMedium,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Giriş Yap',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : SliverList(
+                    delegate: SliverChildListDelegate([
+                      // Profile Info Card
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          isMobile ? 20 : 32,
+                          isMobile ? 20 : 28,
+                          isMobile ? 20 : 32,
+                          24,
+                        ),
+                        child: _buildProfileCard(user, isMobile),
+                      ),
+
+                      // Statistics Section
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 20 : 32,
+                        ),
+                        child: _buildStatisticsSection(isMobile),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Personal Information Section
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 20 : 32,
+                        ),
+                        child: _buildPersonalInfoSection(user, isMobile),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Quick Actions Section
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          isMobile ? 20 : 32,
+                          0,
+                          isMobile ? 20 : 32,
+                          32,
+                        ),
+                        child: _buildQuickActionsSection(isMobile),
+                      ),
+                    ]),
                   ),
-                  child: _buildProfileCard(user, isMobile),
-                ),
-
-                // Statistics Section
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 20 : 32,
-                  ),
-                  child: _buildStatisticsSection(isMobile),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Personal Information Section
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 20 : 32,
-                  ),
-                  child: _buildPersonalInfoSection(user, isMobile),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Quick Actions Section
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isMobile ? 20 : 32,
-                    0,
-                    isMobile ? 20 : 32,
-                    32,
-                  ),
-                  child: _buildQuickActionsSection(isMobile),
-                ),
-              ]),
-            ),
             loading: () => SliverFillRemaining(
               child: Center(
                 child: CircularProgressIndicator(

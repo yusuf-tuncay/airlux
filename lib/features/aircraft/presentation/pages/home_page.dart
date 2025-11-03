@@ -8,6 +8,17 @@ import '../../../../shared/widgets/responsive_layout.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../data/models/aircraft_model.dart';
 
+// Aviation Blue color palette
+const Color _aviationBlue = Color(0xFF0F1E2E); // Gece mavisi - Arka plan
+const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
+const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
+
+final LinearGradient _aviationGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [_iceGray, _lightGold],
+);
+
 /// Ana sayfa - Uçak listesi
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -198,10 +209,7 @@ class _HomePageState extends State<HomePage>
           colors: [AppColors.primaryDark, AppColors.secondaryDark],
         ),
         border: Border(
-          top: BorderSide(
-            color: AppColors.goldMedium.withValues(alpha: 0.2),
-            width: 1,
-          ),
+          top: BorderSide(color: _lightGold.withValues(alpha: 0.2), width: 1),
         ),
       ),
       child: isMobile ? _buildMobileFooter() : _buildDesktopFooter(),
@@ -218,13 +226,11 @@ class _HomePageState extends State<HomePage>
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.goldMedium, AppColors.gold],
-                ),
+                gradient: LinearGradient(colors: [_lightGold, _lightGold]),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.goldMedium.withValues(alpha: 0.3),
+                    color: _lightGold.withValues(alpha: 0.3),
                     blurRadius: 8,
                     spreadRadius: 1,
                   ),
@@ -329,14 +335,12 @@ class _HomePageState extends State<HomePage>
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [AppColors.goldMedium, AppColors.gold],
+                            colors: [_lightGold, _lightGold],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.goldMedium.withValues(
-                                alpha: 0.3,
-                              ),
+                              color: _lightGold.withValues(alpha: 0.3),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -445,7 +449,7 @@ class _HomePageState extends State<HomePage>
                 Text(
                   'info@airlux.com',
                   style: TextStyle(
-                    color: AppColors.goldMedium.withValues(alpha: 0.8),
+                    color: _lightGold.withValues(alpha: 0.8),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -477,7 +481,7 @@ class _HomePageState extends State<HomePage>
         Text(
           title,
           style: TextStyle(
-            color: AppColors.goldMedium,
+            color: _iceGray,
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -606,14 +610,14 @@ class _HomePageState extends State<HomePage>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppColors.goldMedium.withValues(alpha: 0.3),
+                    color: _lightGold.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   color: AppColors.backgroundCard.withValues(alpha: 0.5),
                 ),
                 child: Icon(
                   Icons.person_outline,
-                  color: AppColors.goldMedium,
+                  color: _lightGold,
                   size: isMobile ? 20 : 24,
                 ),
               ),
@@ -657,7 +661,7 @@ class _HomePageState extends State<HomePage>
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: AppColors.goldMedium.withValues(alpha: 0.7),
+                  color: _lightGold.withValues(alpha: 0.7),
                   size: 22,
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
@@ -841,10 +845,10 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.005).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
-    _elevationAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
+    _elevationAnimation = Tween<double>(begin: 0.0, end: 2.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
   }
@@ -887,34 +891,27 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                         end: Alignment.bottomRight,
                         colors: [
                           AppColors.backgroundCard,
-                          AppColors.backgroundCard.withValues(alpha: 0.95),
-                          AppColors.primaryDarkLight.withValues(alpha: 0.3),
+                          AppColors.backgroundCard.withValues(alpha: 0.98),
+                          AppColors.primaryDarkLight.withValues(alpha: 0.15),
                         ],
                       )
                     : null,
                 color: !_isHovered ? AppColors.backgroundCard : null,
                 border: Border.all(
                   color: _isHovered
-                      ? AppColors.goldMedium.withValues(alpha: 0.4)
+                      ? _lightGold.withValues(alpha: 0.25)
                       : AppColors.borderMedium.withValues(alpha: 0.2),
-                  width: _isHovered ? 1.5 : 1,
+                  width: _isHovered ? 1.2 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: _isHovered
-                        ? AppColors.goldMedium.withValues(alpha: 0.15)
+                        ? _lightGold.withValues(alpha: 0.08)
                         : Colors.black.withValues(alpha: 0.15),
                     blurRadius: _elevationAnimation.value + 12,
                     offset: Offset(0, _elevationAnimation.value + 4),
-                    spreadRadius: _isHovered ? 2 : 0,
+                    spreadRadius: 0,
                   ),
-                  if (_isHovered)
-                    BoxShadow(
-                      color: AppColors.goldMedium.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                      spreadRadius: 1,
-                    ),
                 ],
               ),
               child: Material(
@@ -922,8 +919,8 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                 child: InkWell(
                   onTap: widget.onTap,
                   borderRadius: BorderRadius.circular(20),
-                  splashColor: AppColors.goldMedium.withValues(alpha: 0.1),
-                  highlightColor: AppColors.goldMedium.withValues(alpha: 0.05),
+                  splashColor: _lightGold.withValues(alpha: 0.1),
+                  highlightColor: _lightGold.withValues(alpha: 0.05),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -981,10 +978,9 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                                     AlwaysStoppedAnimation<
                                                       Color
                                                     >(
-                                                      AppColors.goldMedium
-                                                          .withValues(
-                                                            alpha: 0.6,
-                                                          ),
+                                                      _lightGold.withValues(
+                                                        alpha: 0.6,
+                                                      ),
                                                     ),
                                               ),
                                             ),
@@ -1009,7 +1005,7 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                                         : Icons
                                                               .flight_takeoff_rounded,
                                                     size: 72,
-                                                    color: AppColors.gold
+                                                    color: _lightGold
                                                         .withValues(
                                                           alpha: 0.25,
                                                         ),
@@ -1034,7 +1030,7 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                                 ? Icons.flight_rounded
                                                 : Icons.flight_takeoff_rounded,
                                             size: 72,
-                                            color: AppColors.gold.withValues(
+                                            color: _lightGold.withValues(
                                               alpha: 0.25,
                                             ),
                                           ),
@@ -1058,9 +1054,7 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                     Colors.transparent,
                                     Colors.transparent,
                                     _isHovered
-                                        ? AppColors.goldMedium.withValues(
-                                            alpha: 0.08,
-                                          )
+                                        ? _lightGold.withValues(alpha: 0.08)
                                         : AppColors.backgroundCard.withValues(
                                             alpha: 0.7,
                                           ),
@@ -1159,15 +1153,11 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                 ),
                                 decoration: BoxDecoration(
                                   color: _isHovered
-                                      ? AppColors.goldMedium.withValues(
-                                          alpha: 0.25,
-                                        )
-                                      : AppColors.goldMedium.withValues(
-                                          alpha: 0.18,
-                                        ),
+                                      ? _lightGold.withValues(alpha: 0.25)
+                                      : _lightGold.withValues(alpha: 0.18),
                                   borderRadius: BorderRadius.circular(22),
                                   border: Border.all(
-                                    color: AppColors.goldMedium.withValues(
+                                    color: _lightGold.withValues(
                                       alpha: _isHovered ? 0.8 : 0.5,
                                     ),
                                     width: _isHovered ? 1.5 : 1,
@@ -1175,8 +1165,9 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                   boxShadow: _isHovered
                                       ? [
                                           BoxShadow(
-                                            color: AppColors.goldMedium
-                                                .withValues(alpha: 0.3),
+                                            color: _lightGold.withValues(
+                                              alpha: 0.3,
+                                            ),
                                             blurRadius: 8,
                                             spreadRadius: 1,
                                           ),
@@ -1186,7 +1177,7 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                 child: Text(
                                   _getTypeLabel(widget.aircraft.type),
                                   style: TextStyle(
-                                    color: AppColors.goldMedium,
+                                    color: _aviationBlue,
                                     fontSize: 11.5,
                                     fontWeight: FontWeight.w700,
                                     letterSpacing: 0.8,
@@ -1279,12 +1270,10 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                       vertical: 6,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.goldMedium.withValues(
-                                        alpha: 0.12,
-                                      ),
+                                      color: _lightGold.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color: AppColors.goldMedium.withValues(
+                                        color: _lightGold.withValues(
                                           alpha: 0.3,
                                         ),
                                         width: 1,
@@ -1296,7 +1285,7 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                         Icon(
                                           Icons.star_rounded,
                                           size: 16,
-                                          color: AppColors.goldMedium,
+                                          color: _lightGold,
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
@@ -1305,7 +1294,7 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
-                                            color: AppColors.goldMedium,
+                                            color: _lightGold,
                                           ),
                                         ),
                                         const SizedBox(width: 4),
@@ -1324,9 +1313,8 @@ class _PremiumAircraftCardState extends State<_PremiumAircraftCard>
 
                                   // Price with premium gradient
                                   ShaderMask(
-                                    shaderCallback: (bounds) => AppColors
-                                        .premiumGoldGradient
-                                        .createShader(bounds),
+                                    shaderCallback: (bounds) =>
+                                        _aviationGradient.createShader(bounds),
                                     child: AnimatedDefaultTextStyle(
                                       duration: const Duration(
                                         milliseconds: 300,
@@ -1467,23 +1455,23 @@ class _TypeChipWidgetState extends State<_TypeChipWidget> {
           ),
           decoration: BoxDecoration(
             color: widget.isSelected
-                ? AppColors.goldMedium
+                ? _lightGold
                 : _isHovered
-                ? AppColors.goldMedium.withValues(alpha: 0.15)
+                ? _lightGold.withValues(alpha: 0.15)
                 : AppColors.primaryDark.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: widget.isSelected
-                  ? AppColors.goldMedium
+                  ? _lightGold
                   : _isHovered
-                  ? AppColors.goldMedium.withValues(alpha: 0.6)
+                  ? _lightGold.withValues(alpha: 0.6)
                   : AppColors.borderMedium.withValues(alpha: 0.5),
               width: _isHovered && !widget.isSelected ? 1.5 : 1,
             ),
             boxShadow: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.goldMedium.withValues(alpha: 0.3),
+                      color: _lightGold.withValues(alpha: 0.3),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -1491,7 +1479,7 @@ class _TypeChipWidgetState extends State<_TypeChipWidget> {
                 : _isHovered
                 ? [
                     BoxShadow(
-                      color: AppColors.goldMedium.withValues(alpha: 0.2),
+                      color: _lightGold.withValues(alpha: 0.2),
                       blurRadius: 6,
                       spreadRadius: 0.5,
                     ),
@@ -1504,7 +1492,7 @@ class _TypeChipWidgetState extends State<_TypeChipWidget> {
               color: widget.isSelected
                   ? AppColors.primaryDark
                   : _isHovered
-                  ? AppColors.goldMedium
+                  ? _lightGold
                   : AppColors.textSecondary,
               fontSize: widget.isMobile ? 12 : 13,
               fontWeight: widget.isSelected || _isHovered
@@ -1553,19 +1541,19 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
           ),
           decoration: BoxDecoration(
             color: _isHovered
-                ? AppColors.goldMedium.withValues(alpha: 0.15)
+                ? _lightGold.withValues(alpha: 0.15)
                 : AppColors.primaryDark.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: _isHovered
-                  ? AppColors.goldMedium.withValues(alpha: 0.6)
+                  ? _lightGold.withValues(alpha: 0.6)
                   : AppColors.borderMedium.withValues(alpha: 0.5),
               width: _isHovered ? 1.5 : 1,
             ),
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: AppColors.goldMedium.withValues(alpha: 0.2),
+                      color: _lightGold.withValues(alpha: 0.2),
                       blurRadius: 6,
                       spreadRadius: 0.5,
                     ),
@@ -1578,17 +1566,15 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
               Icon(
                 Icons.sort,
                 color: _isHovered
-                    ? AppColors.goldMedium
-                    : AppColors.goldMedium.withValues(alpha: 0.7),
+                    ? _lightGold
+                    : _lightGold.withValues(alpha: 0.7),
                 size: 18,
               ),
               const SizedBox(width: 6),
               Text(
                 'Sırala',
                 style: TextStyle(
-                  color: _isHovered
-                      ? AppColors.goldMedium
-                      : AppColors.textSecondary,
+                  color: _isHovered ? _lightGold : AppColors.textSecondary,
                   fontSize: widget.isMobile ? 12 : 13,
                   fontWeight: _isHovered ? FontWeight.w600 : FontWeight.w400,
                 ),
@@ -1606,7 +1592,7 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
                   Icons.attach_money,
                   size: 18,
                   color: widget.sortBy == 'price'
-                      ? AppColors.goldMedium
+                      ? _lightGold
                       : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 12),
@@ -1622,7 +1608,7 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
                   Icons.star,
                   size: 18,
                   color: widget.sortBy == 'rating'
-                      ? AppColors.goldMedium
+                      ? _lightGold
                       : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 12),
@@ -1638,7 +1624,7 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
                   Icons.sort_by_alpha,
                   size: 18,
                   color: widget.sortBy == 'name'
-                      ? AppColors.goldMedium
+                      ? _lightGold
                       : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 12),

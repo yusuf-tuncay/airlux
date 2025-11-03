@@ -27,27 +27,24 @@ final appRouter = GoRouter(
       RouteNames.register,
     ];
     
-    // Protected sayfalar - sadece giriş yapmış kullanıcılar erişebilir
-    final protectedPaths = [
-      RouteNames.bookings,
-      RouteNames.profile,
-      RouteNames.settings,
-    ];
-    
     // Aircraft detail sayfası public (yol path kontrolü)
     final isAircraftDetail = currentPath.startsWith('/aircraft/');
     
-    // Booking sayfası protected (yol path kontrolü)
+    // Booking sayfası protected (yol path kontrolü) - sadece bu sayfayı koruyoruz
     final isBookingPage = currentPath.startsWith('/booking/');
     
     // Eğer kullanıcı giriş yapmamışsa
     if (user == null) {
-      // Public sayfalara erişebilir
-      if (publicPaths.contains(currentPath) || isAircraftDetail) {
+      // Public sayfalara erişebilir (bookings, profile, settings artık public - sayfa içinde kontrol edilecek)
+      if (publicPaths.contains(currentPath) || 
+          currentPath == RouteNames.bookings ||
+          currentPath == RouteNames.profile ||
+          currentPath == RouteNames.settings ||
+          isAircraftDetail) {
         return null;
       }
-      // Protected sayfalara veya booking sayfasına erişmeye çalışıyorsa login'e yönlendir
-      if (protectedPaths.contains(currentPath) || isBookingPage) {
+      // Sadece booking sayfasına erişmeye çalışıyorsa login'e yönlendir
+      if (isBookingPage) {
         return RouteNames.login;
       }
     }

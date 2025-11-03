@@ -6,6 +6,23 @@ import '../../../../core/constants/route_names.dart';
 import '../../../../shared/widgets/animated_background.dart';
 import '../providers/auth_provider.dart';
 
+// Aviation Blue color palette
+const Color _aviationBlue = Color(0xFF0F1E2E); // Gece mavisi - Arka plan
+const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
+const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
+
+final LinearGradient _aviationGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [_iceGray, _lightGold],
+);
+
+final LinearGradient _aviationButtonGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [_lightGold, _iceGray],
+);
+
 /// Register ekranı
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -115,20 +132,19 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.gold.withValues(alpha: 0.4),
+                                color: _lightGold.withValues(alpha: 0.4),
                                 blurRadius: 25,
                                 spreadRadius: 4,
                               ),
                               BoxShadow(
-                                color: AppColors.gold.withValues(alpha: 0.2),
+                                color: _lightGold.withValues(alpha: 0.2),
                                 blurRadius: 50,
                                 spreadRadius: 8,
                               ),
                             ],
                           ),
                           child: ShaderMask(
-                            shaderCallback: (bounds) => AppColors
-                                .premiumGoldGradient
+                            shaderCallback: (bounds) => _aviationGradient
                                 .createShader(bounds),
                             child: const Icon(
                               Icons.flight,
@@ -139,8 +155,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                         const SizedBox(height: 20),
                         ShaderMask(
-                          shaderCallback: (bounds) => AppColors
-                              .premiumGoldGradient
+                          shaderCallback: (bounds) => _aviationGradient
                               .createShader(bounds),
                           child: Text(
                             'Hesap Oluştur',
@@ -191,7 +206,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.person_outline,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 size: 20,
                               ),
                               filled: true,
@@ -217,7 +232,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   width: 2,
                                 ),
                               ),
@@ -264,7 +279,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.email_outlined,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 size: 20,
                               ),
                               filled: true,
@@ -290,7 +305,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   width: 2,
                                 ),
                               ),
@@ -344,7 +359,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.phone_outlined,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 size: 20,
                               ),
                               filled: true,
@@ -370,7 +385,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   width: 2,
                                 ),
                               ),
@@ -439,7 +454,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 size: 20,
                               ),
                               suffixIcon: IconButton(
@@ -447,7 +462,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   _obscurePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -479,7 +494,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   width: 2,
                                 ),
                               ),
@@ -539,7 +554,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 size: 20,
                               ),
                               suffixIcon: IconButton(
@@ -547,7 +562,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   _obscureConfirmPassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -580,7 +595,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   width: 2,
                                 ),
                               ),
@@ -607,12 +622,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             borderRadius: BorderRadius.circular(12),
                             gradient: _isLoading
                                 ? null
-                                : AppColors.goldButtonGradient,
+                                : _aviationButtonGradient,
                             boxShadow: _isLoading
                                 ? null
                                 : [
                                     BoxShadow(
-                                      color: AppColors.goldMedium.withValues(
+                                      color: _lightGold.withValues(
                                         alpha: 0.4,
                                       ),
                                       blurRadius: 20,
@@ -620,7 +635,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                       offset: const Offset(0, 8),
                                     ),
                                     BoxShadow(
-                                      color: AppColors.gold.withValues(
+                                      color: _lightGold.withValues(
                                         alpha: 0.3,
                                       ),
                                       blurRadius: 15,
@@ -646,7 +661,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppColors.goldMedium,
+                                        _lightGold,
                                       ),
                                     ),
                                   )
@@ -683,8 +698,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ),
                               ),
                               child: ShaderMask(
-                                shaderCallback: (bounds) => AppColors
-                                    .premiumGoldGradient
+                                shaderCallback: (bounds) => _aviationGradient
                                     .createShader(bounds),
                                 child: const Text(
                                   'Giriş Yap',
@@ -693,7 +707,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                     decoration: TextDecoration.underline,
-                                    decorationColor: AppColors.goldMedium,
+                                    decorationColor: _lightGold,
                                   ),
                                 ),
                               ),

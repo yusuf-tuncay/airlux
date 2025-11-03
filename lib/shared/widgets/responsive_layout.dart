@@ -3,7 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/utils/responsive.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/route_names.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+
+// Aviation Blue color palette
+const Color _aviationBlue = Color(0xFF0F1E2E); // Gece mavisi - Arka plan
+const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
+const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
 
 /// Responsive layout widget'ı
 /// Cihaz tipine göre farklı layout'lar gösterir
@@ -247,7 +253,7 @@ class _PremiumNavigationRail extends ConsumerWidget {
                 extended: extended,
               ),
               SizedBox(height: extended ? 12 : 8),
-              _buildLogoutItem(context, extended, ref),
+              _buildAuthButton(context, extended, ref),
               SizedBox(height: extended ? 16 : 12),
               // Footer
               _buildFooter(extended),
@@ -271,16 +277,16 @@ class _PremiumNavigationRail extends ConsumerWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.goldMedium.withValues(alpha: 0.15),
+                        color: _lightGold.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppColors.goldMedium.withValues(alpha: 0.3),
+                          color: _lightGold.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
                       child: const Icon(
                         Icons.flight_takeoff_rounded,
-                        color: AppColors.goldMedium,
+                        color: _lightGold,
                         size: 20,
                       ),
                     ),
@@ -313,16 +319,16 @@ class _PremiumNavigationRail extends ConsumerWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.goldMedium.withValues(alpha: 0.15),
+                  color: _lightGold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppColors.goldMedium.withValues(alpha: 0.3),
+                    color: _lightGold.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
                 child: const Icon(
                   Icons.flight_takeoff_rounded,
-                  color: AppColors.goldMedium,
+                  color: _lightGold,
                   size: 22,
                 ),
               ),
@@ -391,17 +397,78 @@ class _PremiumNavigationRail extends ConsumerWidget {
     );
   }
 
-  Widget _buildLogoutItem(BuildContext context, bool extended, WidgetRef ref) {
-    return _LogoutItem(
-      extended: extended,
-      onTap: () async {
-        final authNotifier = ref.read(authStateProvider.notifier);
-        await authNotifier.signOut();
-        if (context.mounted) {
-          context.go('/login');
-        }
-      },
-    );
+  Widget _buildAuthButton(BuildContext context, bool extended, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+    final isLoggedIn = authState.valueOrNull != null;
+
+    if (isLoggedIn) {
+      // Kullanıcı giriş yapmışsa - Çıkış Yap butonu
+      return _LogoutItem(
+        extended: extended,
+        onTap: () async {
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: AppColors.backgroundCard,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Text(
+                'Çıkış Yap',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              content: Text(
+                'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'İptal',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text('Çıkış Yap'),
+                ),
+              ],
+            ),
+          );
+
+          if (confirmed == true && context.mounted) {
+            final authNotifier = ref.read(authStateProvider.notifier);
+            await authNotifier.signOut();
+            if (context.mounted) {
+              context.go(RouteNames.home);
+            }
+          }
+        },
+      );
+    } else {
+      // Kullanıcı giriş yapmamışsa - Giriş Yap butonu
+      return _LoginItem(
+        extended: extended,
+        onTap: () {
+          if (context.mounted) {
+            context.go('/login');
+          }
+        },
+      );
+    }
   }
 }
 
@@ -471,6 +538,7 @@ class _ModernNavItemState extends State<_ModernNavItem>
           builder: (context, child) {
             return Transform.scale(
               scale: _scaleAnimation.value,
+              alignment: Alignment.center,
               child: Container(
                 margin: EdgeInsets.symmetric(
                   horizontal: widget.extended ? 16 : 8,
@@ -482,9 +550,9 @@ class _ModernNavItemState extends State<_ModernNavItem>
                 ),
                 decoration: BoxDecoration(
                   color: widget.isSelected
-                      ? AppColors.goldMedium.withValues(alpha: 0.12)
+                      ? _lightGold.withValues(alpha: 0.12)
                       : _isHovered
-                          ? AppColors.goldMedium.withValues(alpha: 0.06)
+                          ? _lightGold.withValues(alpha: 0.06)
                           : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -508,14 +576,14 @@ class _ModernNavItemState extends State<_ModernNavItem>
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              AppColors.goldMedium,
-                              AppColors.gold,
+                              _lightGold,
+                              _iceGray,
                             ],
                           ),
                           borderRadius: BorderRadius.circular(2),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.goldMedium.withValues(alpha: 0.4),
+                              color: _lightGold.withValues(alpha: 0.4),
                               blurRadius: 4,
                               spreadRadius: 0,
                             ),
@@ -526,9 +594,9 @@ class _ModernNavItemState extends State<_ModernNavItem>
                     Icon(
                       widget.icon,
                       color: widget.isSelected
-                          ? AppColors.goldMedium
+                          ? _lightGold
                           : _isHovered
-                              ? AppColors.goldMedium.withValues(alpha: 0.8)
+                              ? _lightGold.withValues(alpha: 0.8)
                               : AppColors.textSecondary.withValues(alpha: 0.7),
                       size: widget.extended ? 22 : 24,
                     ),
@@ -540,12 +608,140 @@ class _ModernNavItemState extends State<_ModernNavItem>
                           widget.label,
                           style: TextStyle(
                             color: widget.isSelected
-                                ? AppColors.goldMedium
+                                ? _lightGold
                                 : _isHovered
-                                    ? AppColors.goldMedium.withValues(alpha: 0.9)
+                                    ? _lightGold.withValues(alpha: 0.9)
                                     : AppColors.textSecondary.withValues(alpha: 0.8),
                             fontSize: 14,
                             fontWeight: widget.isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            letterSpacing: -0.2,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// Login Item with Aviation Blue color theme
+class _LoginItem extends StatefulWidget {
+  final bool extended;
+  final VoidCallback onTap;
+
+  const _LoginItem({
+    required this.extended,
+    required this.onTap,
+  });
+
+  @override
+  State<_LoginItem> createState() => _LoginItemState();
+}
+
+class _LoginItemState extends State<_LoginItem>
+    with SingleTickerProviderStateMixin {
+  bool _isHovered = false;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _animationController.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _animationController.reverse();
+      },
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              alignment: Alignment.center,
+              child: Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: widget.extended ? 16 : 8,
+                  vertical: 2,
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: widget.extended ? 18 : 12,
+                  vertical: widget.extended ? 16 : 14,
+                ),
+                decoration: BoxDecoration(
+                  color: _isHovered
+                      ? _lightGold.withValues(alpha: 0.12)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                  border: _isHovered
+                      ? Border.all(
+                          color: _lightGold.withValues(alpha: 0.3),
+                          width: 1,
+                        )
+                      : null,
+                ),
+                child: Row(
+                  mainAxisSize:
+                      widget.extended ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisAlignment: widget.extended
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
+                  children: [
+                    // Icon
+                    Icon(
+                      Icons.login_rounded,
+                      color: _isHovered
+                          ? _lightGold
+                          : AppColors.textSecondary.withValues(alpha: 0.7),
+                      size: widget.extended ? 22 : 24,
+                    ),
+                    // Label
+                    if (widget.extended) ...[
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          'Giriş Yap',
+                          style: TextStyle(
+                            color: _isHovered
+                                ? _lightGold
+                                : AppColors.textSecondary.withValues(alpha: 0.8),
+                            fontSize: 14,
+                            fontWeight: _isHovered
                                 ? FontWeight.w600
                                 : FontWeight.w400,
                             letterSpacing: -0.2,
@@ -625,6 +821,7 @@ class _LogoutItemState extends State<_LogoutItem>
           builder: (context, child) {
             return Transform.scale(
               scale: _scaleAnimation.value,
+              alignment: Alignment.center,
               child: Container(
                 margin: EdgeInsets.symmetric(
                   horizontal: widget.extended ? 16 : 8,

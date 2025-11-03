@@ -68,7 +68,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       title: null,
       // Settings sayfası için bottomNavIndex null - mobilde bottom nav gösterme
       // Tablet/Desktop'ta sidebar navigation kullanılıyor (orada index 4 var)
-      bottomNavIndex: isMobile ? null : 4, // Tablet/Desktop için sidebar'da 4. index
+      bottomNavIndex: isMobile
+          ? null
+          : 4, // Tablet/Desktop için sidebar'da 4. index
       onBottomNavTap: isMobile ? null : _onNavTap,
       body: CustomScrollView(
         slivers: [
@@ -153,247 +155,349 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
 
           // Settings Content
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                isMobile ? 20 : 32,
-                24,
-                isMobile ? 20 : 32,
-                32,
+          authState.when(
+            data: (user) => user == null
+                ? SliverFillRemaining(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.lock_outline_rounded,
+                              size: 80,
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Giriş Yapmanız Gerekiyor',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Ayarlara erişmek için\nhesabınıza giriş yapmalısınız',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textSecondary,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            ElevatedButton(
+                              onPressed: () {
+                                context.go(RouteNames.login);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.goldMedium,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Giriş Yap',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        isMobile ? 20 : 32,
+                        24,
+                        isMobile ? 20 : 32,
+                        32,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Bildirimler
+                          _buildSettingsSection(
+                            title: 'Bildirimler',
+                            icon: Icons.notifications_outlined,
+                            children: [
+                              _buildSwitchTile(
+                                icon: Icons.notifications_active,
+                                title: 'Push Bildirimleri',
+                                subtitle:
+                                    'Yeni rezervasyonlar ve güncellemeler hakkında bildirim al',
+                                value: _notificationsEnabled,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _notificationsEnabled = value;
+                                  });
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSwitchTile(
+                                icon: Icons.email_outlined,
+                                title: 'E-posta Bildirimleri',
+                                subtitle: 'E-posta ile güncellemeleri al',
+                                value: _emailUpdates,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _emailUpdates = value;
+                                  });
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSwitchTile(
+                                icon: Icons.sms_outlined,
+                                title: 'SMS Bildirimleri',
+                                subtitle: 'SMS ile önemli güncellemeleri al',
+                                value: _smsNotifications,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _smsNotifications = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Hesap
+                          _buildSettingsSection(
+                            title: 'Hesap',
+                            icon: Icons.person_outline,
+                            children: [
+                              _buildSettingsTile(
+                                icon: Icons.person,
+                                title: 'Profil Bilgileri',
+                                subtitle: 'Ad, soyad ve iletişim bilgileri',
+                                onTap: () {
+                                  context.go(RouteNames.profile);
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSettingsTile(
+                                icon: Icons.lock_outline,
+                                title: 'Şifre Değiştir',
+                                subtitle: 'Hesap şifrenizi güncelleyin',
+                                onTap: () {
+                                  _showPasswordChangeDialog();
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSwitchTile(
+                                icon: Icons.remember_me_outlined,
+                                title: 'Beni Hatırla',
+                                subtitle: 'Otomatik giriş yap',
+                                value: _rememberMe,
+                                onChanged: (value) async {
+                                  await PreferencesHelper.setRememberMe(value);
+                                  setState(() {
+                                    _rememberMe = value;
+                                  });
+                                  if (!value) {
+                                    await PreferencesHelper.clearRememberMe();
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Görünüm
+                          _buildSettingsSection(
+                            title: 'Görünüm',
+                            icon: Icons.palette_outlined,
+                            children: [
+                              _buildSettingsTile(
+                                icon: Icons.dark_mode_outlined,
+                                title: 'Karanlık Mod',
+                                subtitle: 'Gece modunu aktifleştir',
+                                trailing: Icon(
+                                  Icons.dark_mode,
+                                  color: AppColors.goldMedium,
+                                  size: 20,
+                                ),
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Karanlık mod yakında eklenecek',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSettingsTile(
+                                icon: Icons.language,
+                                title: 'Dil',
+                                subtitle: 'Türkçe',
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: AppColors.textSecondary,
+                                ),
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Dil seçenekleri yakında eklenecek',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Uygulama
+                          _buildSettingsSection(
+                            title: 'Uygulama',
+                            icon: Icons.info_outline,
+                            children: [
+                              _buildSettingsTile(
+                                icon: Icons.help_outline,
+                                title: 'Yardım & Destek',
+                                subtitle: 'SSS ve iletişim bilgileri',
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Yardım sayfası yakında eklenecek',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSettingsTile(
+                                icon: Icons.privacy_tip_outlined,
+                                title: 'Gizlilik Politikası',
+                                subtitle: 'Veri kullanımı ve gizlilik',
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Gizlilik politikası yakında eklenecek',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSettingsTile(
+                                icon: Icons.description_outlined,
+                                title: 'Kullanım Koşulları',
+                                subtitle: 'Hizmet şartları ve koşullar',
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Kullanım koşulları yakında eklenecek',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(
+                                color: AppColors.borderMedium,
+                                height: 1,
+                              ),
+                              _buildSettingsTile(
+                                icon: Icons.info,
+                                title: 'Hakkında',
+                                subtitle: 'Uygulama versiyonu ve bilgileri',
+                                onTap: () {
+                                  _showAboutDialog();
+                                },
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          // Çıkış Yap Butonu
+                          authState.when(
+                            data: (user) {
+                              if (user == null) return const SizedBox.shrink();
+                              return _buildLogoutButton();
+                            },
+                            loading: () => const SizedBox.shrink(),
+                            error: (_, __) => const SizedBox.shrink(),
+                          ),
+
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  ),
+            loading: () => SliverFillRemaining(
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.goldMedium,
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Bildirimler
-                  _buildSettingsSection(
-                    title: 'Bildirimler',
-                    icon: Icons.notifications_outlined,
-                    children: [
-                      _buildSwitchTile(
-                        icon: Icons.notifications_active,
-                        title: 'Push Bildirimleri',
-                        subtitle: 'Yeni rezervasyonlar ve güncellemeler hakkında bildirim al',
-                        value: _notificationsEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _notificationsEnabled = value;
-                          });
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSwitchTile(
-                        icon: Icons.email_outlined,
-                        title: 'E-posta Bildirimleri',
-                        subtitle: 'E-posta ile güncellemeleri al',
-                        value: _emailUpdates,
-                        onChanged: (value) {
-                          setState(() {
-                            _emailUpdates = value;
-                          });
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSwitchTile(
-                        icon: Icons.sms_outlined,
-                        title: 'SMS Bildirimleri',
-                        subtitle: 'SMS ile önemli güncellemeleri al',
-                        value: _smsNotifications,
-                        onChanged: (value) {
-                          setState(() {
-                            _smsNotifications = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Hesap
-                  _buildSettingsSection(
-                    title: 'Hesap',
-                    icon: Icons.person_outline,
-                    children: [
-                      _buildSettingsTile(
-                        icon: Icons.person,
-                        title: 'Profil Bilgileri',
-                        subtitle: 'Ad, soyad ve iletişim bilgileri',
-                        onTap: () {
-                          context.go(RouteNames.profile);
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSettingsTile(
-                        icon: Icons.lock_outline,
-                        title: 'Şifre Değiştir',
-                        subtitle: 'Hesap şifrenizi güncelleyin',
-                        onTap: () {
-                          _showPasswordChangeDialog();
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSwitchTile(
-                        icon: Icons.remember_me_outlined,
-                        title: 'Beni Hatırla',
-                        subtitle: 'Otomatik giriş yap',
-                        value: _rememberMe,
-                        onChanged: (value) async {
-                          await PreferencesHelper.setRememberMe(value);
-                          setState(() {
-                            _rememberMe = value;
-                          });
-                          if (!value) {
-                            await PreferencesHelper.clearRememberMe();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Görünüm
-                  _buildSettingsSection(
-                    title: 'Görünüm',
-                    icon: Icons.palette_outlined,
-                    children: [
-                      _buildSettingsTile(
-                        icon: Icons.dark_mode_outlined,
-                        title: 'Karanlık Mod',
-                        subtitle: 'Gece modunu aktifleştir',
-                        trailing: Icon(
-                          Icons.dark_mode,
-                          color: AppColors.goldMedium,
-                          size: 20,
-                        ),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Karanlık mod yakında eklenecek'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSettingsTile(
-                        icon: Icons.language,
-                        title: 'Dil',
-                        subtitle: 'Türkçe',
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: AppColors.textSecondary,
-                        ),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Dil seçenekleri yakında eklenecek'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Uygulama
-                  _buildSettingsSection(
-                    title: 'Uygulama',
-                    icon: Icons.info_outline,
-                    children: [
-                      _buildSettingsTile(
-                        icon: Icons.help_outline,
-                        title: 'Yardım & Destek',
-                        subtitle: 'SSS ve iletişim bilgileri',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Yardım sayfası yakında eklenecek'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSettingsTile(
-                        icon: Icons.privacy_tip_outlined,
-                        title: 'Gizlilik Politikası',
-                        subtitle: 'Veri kullanımı ve gizlilik',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Gizlilik politikası yakında eklenecek'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSettingsTile(
-                        icon: Icons.description_outlined,
-                        title: 'Kullanım Koşulları',
-                        subtitle: 'Hizmet şartları ve koşullar',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Kullanım koşulları yakında eklenecek'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(
-                        color: AppColors.borderMedium,
-                        height: 1,
-                      ),
-                      _buildSettingsTile(
-                        icon: Icons.info,
-                        title: 'Hakkında',
-                        subtitle: 'Uygulama versiyonu ve bilgileri',
-                        onTap: () {
-                          _showAboutDialog();
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Çıkış Yap Butonu
-                  authState.when(
-                    data: (user) {
-                      if (user == null) return const SizedBox.shrink();
-                      return _buildLogoutButton();
-                    },
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
-                  ),
-
-                  const SizedBox(height: 24),
-                ],
+            ),
+            error: (error, stack) => SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Hata: $error',
+                      style: TextStyle(color: AppColors.error, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -436,11 +540,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     color: AppColors.goldMedium.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    icon,
-                    color: AppColors.goldMedium,
-                    size: 20,
-                  ),
+                  child: Icon(icon, color: AppColors.goldMedium, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -480,11 +580,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 color: AppColors.goldMedium.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
-                color: AppColors.goldMedium,
-                size: 22,
-              ),
+              child: Icon(icon, color: AppColors.goldMedium, size: 22),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -513,7 +609,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.goldMedium,
+              activeThumbColor: AppColors.goldMedium,
             ),
           ],
         ),
@@ -541,11 +637,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 color: AppColors.goldMedium.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
-                color: AppColors.goldMedium,
-                size: 22,
-              ),
+              child: Icon(icon, color: AppColors.goldMedium, size: 22),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -572,10 +664,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
             ),
             trailing ??
-                Icon(
-                  Icons.chevron_right,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),
@@ -601,11 +690,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.logout,
-                  color: AppColors.error,
-                  size: 22,
-                ),
+                Icon(Icons.logout, color: AppColors.error, size: 22),
                 const SizedBox(width: 12),
                 Text(
                   'Çıkış Yap',
@@ -628,9 +713,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.backgroundCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Çıkış Yap',
           style: TextStyle(
@@ -640,9 +723,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ),
         content: Text(
           'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -681,9 +762,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.backgroundCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Şifre Değiştir',
           style: TextStyle(
@@ -693,17 +772,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ),
         content: Text(
           'Şifre değiştirme özelliği yakında eklenecek.',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Tamam',
-              style: TextStyle(color: AppColors.goldMedium),
-            ),
+            child: Text('Tamam', style: TextStyle(color: AppColors.goldMedium)),
           ),
         ],
       ),
@@ -715,9 +789,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.backgroundCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -728,10 +800,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.goldMedium,
-                    AppColors.gold,
-                  ],
+                  colors: [AppColors.goldMedium, AppColors.gold],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
@@ -742,11 +811,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.flight,
-                color: Colors.white,
-                size: 40,
-              ),
+              child: const Icon(Icons.flight, color: Colors.white, size: 40),
             ),
             const SizedBox(height: 20),
             Text(
@@ -760,44 +825,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             const SizedBox(height: 8),
             Text(
               'Versiyon 1.0.0',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 20),
             Text(
               'Lüks özel uçak kiralama deneyimi',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 20),
             Text(
               '© 2025 AirLux',
-              style: TextStyle(
-                color: AppColors.textTertiary,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
             ),
             Text(
               'Tüm hakları saklıdır.',
-              style: TextStyle(
-                color: AppColors.textTertiary,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Kapat',
-              style: TextStyle(color: AppColors.goldMedium),
-            ),
+            child: Text('Kapat', style: TextStyle(color: AppColors.goldMedium)),
           ),
         ],
       ),

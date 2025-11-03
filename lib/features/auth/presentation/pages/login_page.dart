@@ -8,6 +8,23 @@ import '../../../../core/firebase/firebase_service.dart';
 import '../../../../shared/widgets/animated_background.dart';
 import '../providers/auth_provider.dart';
 
+// Aviation Blue color palette
+const Color _aviationBlue = Color(0xFF0F1E2E); // Gece mavisi - Arka plan
+const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
+const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
+
+final LinearGradient _aviationGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [_iceGray, _lightGold],
+);
+
+final LinearGradient _aviationButtonGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [_lightGold, _iceGray],
+);
+
 /// Login ekranı
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -146,9 +163,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       debugPrint('🔍 Kaydedilmiş bilgiler kontrol ediliyor...');
       debugPrint('   ✓ Remember Me: $rememberMe');
-      debugPrint(
-        '   📧 Email: ${rememberedEmail != null ? rememberedEmail : "yok"}',
-      );
+      debugPrint('   📧 Email: ${rememberedEmail ?? "yok"}');
       debugPrint(
         '   🔑 Şifre: ${rememberedPassword != null ? "${rememberedPassword.length} karakter" : "yok"}',
       );
@@ -508,21 +523,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.gold.withValues(alpha: 0.4),
+                                color: _lightGold.withValues(alpha: 0.4),
                                 blurRadius: 25,
                                 spreadRadius: 4,
                               ),
                               BoxShadow(
-                                color: AppColors.gold.withValues(alpha: 0.2),
+                                color: _lightGold.withValues(alpha: 0.2),
                                 blurRadius: 50,
                                 spreadRadius: 8,
                               ),
                             ],
                           ),
                           child: ShaderMask(
-                            shaderCallback: (bounds) => AppColors
-                                .premiumGoldGradient
-                                .createShader(bounds),
+                            shaderCallback: (bounds) =>
+                                _aviationGradient.createShader(bounds),
                             child: const Icon(
                               Icons.flight,
                               size: 60,
@@ -532,9 +546,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         const SizedBox(height: 20),
                         ShaderMask(
-                          shaderCallback: (bounds) => AppColors
-                              .premiumGoldGradient
-                              .createShader(bounds),
+                          shaderCallback: (bounds) =>
+                              _aviationGradient.createShader(bounds),
                           child: Text(
                             'Airlux\'a\nHoş Geldiniz',
                             textAlign: TextAlign.center,
@@ -584,7 +597,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.email_outlined,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 size: 20,
                               ),
                               filled: true,
@@ -610,7 +623,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   width: 2,
                                 ),
                               ),
@@ -659,7 +672,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 size: 20,
                               ),
                               suffixIcon: IconButton(
@@ -667,7 +680,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   _obscurePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -699,7 +712,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppColors.goldMedium,
+                                  color: _lightGold,
                                   width: 2,
                                 ),
                               ),
@@ -728,12 +741,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   _rememberMe = value ?? false;
                                 });
                               },
-                              activeColor: AppColors.goldMedium,
+                              activeColor: _lightGold,
                               checkColor: AppColors.primaryDark,
-                              side: BorderSide(
-                                color: AppColors.goldMedium,
-                                width: 2,
-                              ),
+                              side: BorderSide(color: _lightGold, width: 2),
                             ),
                             GestureDetector(
                               onTap: () {
@@ -761,22 +771,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             borderRadius: BorderRadius.circular(12),
                             gradient: _isLoading
                                 ? null
-                                : AppColors.goldButtonGradient,
+                                : _aviationButtonGradient,
                             boxShadow: _isLoading
                                 ? null
                                 : [
                                     BoxShadow(
-                                      color: AppColors.goldMedium.withValues(
-                                        alpha: 0.4,
-                                      ),
+                                      color: _lightGold.withValues(alpha: 0.4),
                                       blurRadius: 20,
                                       spreadRadius: 2,
                                       offset: const Offset(0, 8),
                                     ),
                                     BoxShadow(
-                                      color: AppColors.gold.withValues(
-                                        alpha: 0.3,
-                                      ),
+                                      color: _lightGold.withValues(alpha: 0.3),
                                       blurRadius: 15,
                                       spreadRadius: 1,
                                     ),
@@ -800,7 +806,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppColors.goldMedium,
+                                        _lightGold,
                                       ),
                                     ),
                                   )
@@ -824,10 +830,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           child: OutlinedButton.icon(
                             onPressed: _isLoading ? null : _handleGoogleLogin,
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                color: AppColors.goldMedium,
-                                width: 2,
-                              ),
+                              side: BorderSide(color: _lightGold, width: 2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -835,14 +838,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             icon: const Icon(
                               Icons.g_mobiledata,
                               size: 28,
-                              color: AppColors.goldMedium,
+                              color: _lightGold,
                             ),
                             label: const Text(
                               'Google ile Giriş Yap',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.goldMedium,
+                                color: _lightGold,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -870,9 +873,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ),
                               ),
                               child: ShaderMask(
-                                shaderCallback: (bounds) => AppColors
-                                    .premiumGoldGradient
-                                    .createShader(bounds),
+                                shaderCallback: (bounds) =>
+                                    _aviationGradient.createShader(bounds),
                                 child: const Text(
                                   'Kayıt Ol',
                                   style: TextStyle(
@@ -880,7 +882,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                     decoration: TextDecoration.underline,
-                                    decorationColor: AppColors.goldMedium,
+                                    decorationColor: _lightGold,
                                   ),
                                 ),
                               ),
