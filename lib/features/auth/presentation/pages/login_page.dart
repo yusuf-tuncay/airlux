@@ -9,7 +9,6 @@ import '../../../../shared/widgets/animated_background.dart';
 import '../providers/auth_provider.dart';
 
 // Aviation Blue color palette
-const Color _aviationBlue = Color(0xFF0F1E2E); // Gece mavisi - Arka plan
 const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
 const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
 

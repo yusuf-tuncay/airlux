@@ -7,7 +7,6 @@ import '../../../../shared/widgets/animated_background.dart';
 import '../providers/auth_provider.dart';
 
 // Aviation Blue color palette
-const Color _aviationBlue = Color(0xFF0F1E2E); // Gece mavisi - Arka plan
 const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
 const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
 
@@ -144,8 +143,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             ],
                           ),
                           child: ShaderMask(
-                            shaderCallback: (bounds) => _aviationGradient
-                                .createShader(bounds),
+                            shaderCallback: (bounds) =>
+                                _aviationGradient.createShader(bounds),
                             child: const Icon(
                               Icons.flight,
                               size: 60,
@@ -155,8 +154,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                         const SizedBox(height: 20),
                         ShaderMask(
-                          shaderCallback: (bounds) => _aviationGradient
-                              .createShader(bounds),
+                          shaderCallback: (bounds) =>
+                              _aviationGradient.createShader(bounds),
                           child: Text(
                             'Hesap Oluştur',
                             textAlign: TextAlign.center,
@@ -627,17 +626,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ? null
                                 : [
                                     BoxShadow(
-                                      color: _lightGold.withValues(
-                                        alpha: 0.4,
-                                      ),
+                                      color: _lightGold.withValues(alpha: 0.4),
                                       blurRadius: 20,
                                       spreadRadius: 2,
                                       offset: const Offset(0, 8),
                                     ),
                                     BoxShadow(
-                                      color: _lightGold.withValues(
-                                        alpha: 0.3,
-                                      ),
+                                      color: _lightGold.withValues(alpha: 0.3),
                                       blurRadius: 15,
                                       spreadRadius: 1,
                                     ),
@@ -698,8 +693,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ),
                               ),
                               child: ShaderMask(
-                                shaderCallback: (bounds) => _aviationGradient
-                                    .createShader(bounds),
+                                shaderCallback: (bounds) =>
+                                    _aviationGradient.createShader(bounds),
                                 child: const Text(
                                   'Giriş Yap',
                                   style: TextStyle(

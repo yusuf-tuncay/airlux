@@ -7,7 +7,6 @@ import '../../core/constants/route_names.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
 // Aviation Blue color palette
-const Color _aviationBlue = Color(0xFF0F1E2E); // Gece mavisi - Arka plan
 const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
 const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
 
@@ -66,16 +65,15 @@ class ResponsiveScaffold extends StatelessWidget {
     return ResponsiveLayout(
       mobile: Scaffold(
         appBar: title != null
-            ? AppBar(
-                title: Text(title!),
-                actions: actions,
-              )
+            ? AppBar(title: Text(title!), actions: actions)
             : null,
         body: body,
         floatingActionButton: floatingActionButton,
         bottomNavigationBar: bottomNavIndex != null && onBottomNavTap != null
             ? BottomNavigationBar(
-                currentIndex: bottomNavIndex! < 4 ? bottomNavIndex! : 0, // 0-3 arası olmalı (4 öğe var)
+                currentIndex: bottomNavIndex! < 4
+                    ? bottomNavIndex!
+                    : 0, // 0-3 arası olmalı (4 öğe var)
                 onTap: onBottomNavTap,
                 type: BottomNavigationBarType.fixed,
                 selectedItemColor: Theme.of(context).colorScheme.primary,
@@ -194,14 +192,11 @@ class _PremiumNavigationRail extends ConsumerWidget {
         children: [
           // Minimal Header
           _buildMinimalHeader(extended),
-          
+
           // Navigation Items
           Expanded(
             child: ListView(
-              padding: EdgeInsets.only(
-                top: extended ? 24 : 16,
-                bottom: 16,
-              ),
+              padding: EdgeInsets.only(top: extended ? 24 : 16, bottom: 16),
               children: [
                 _buildNavItem(
                   icon: Icons.flight_rounded,
@@ -233,7 +228,7 @@ class _PremiumNavigationRail extends ConsumerWidget {
               ],
             ),
           ),
-          
+
           // Fixed Bottom Section - Ayarlar ve Çıkış Yap
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -387,7 +382,7 @@ class _PremiumNavigationRail extends ConsumerWidget {
     required bool extended,
   }) {
     final isSelected = selectedIndex == index;
-    
+
     return _ModernNavItem(
       icon: icon,
       label: label,
@@ -422,9 +417,7 @@ class _PremiumNavigationRail extends ConsumerWidget {
               ),
               content: Text(
                 'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(color: AppColors.textSecondary),
               ),
               actions: [
                 TextButton(
@@ -506,10 +499,7 @@ class _ModernNavItemState extends State<_ModernNavItem>
       duration: const Duration(milliseconds: 150),
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
 
@@ -552,13 +542,14 @@ class _ModernNavItemState extends State<_ModernNavItem>
                   color: widget.isSelected
                       ? _lightGold.withValues(alpha: 0.12)
                       : _isHovered
-                          ? _lightGold.withValues(alpha: 0.06)
-                          : Colors.transparent,
+                      ? _lightGold.withValues(alpha: 0.06)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
-                  mainAxisSize:
-                      widget.extended ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisSize: widget.extended
+                      ? MainAxisSize.max
+                      : MainAxisSize.min,
                   mainAxisAlignment: widget.extended
                       ? MainAxisAlignment.start
                       : MainAxisAlignment.center,
@@ -575,10 +566,7 @@ class _ModernNavItemState extends State<_ModernNavItem>
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [
-                              _lightGold,
-                              _iceGray,
-                            ],
+                            colors: [_lightGold, _iceGray],
                           ),
                           borderRadius: BorderRadius.circular(2),
                           boxShadow: [
@@ -596,8 +584,8 @@ class _ModernNavItemState extends State<_ModernNavItem>
                       color: widget.isSelected
                           ? _lightGold
                           : _isHovered
-                              ? _lightGold.withValues(alpha: 0.8)
-                              : AppColors.textSecondary.withValues(alpha: 0.7),
+                          ? _lightGold.withValues(alpha: 0.8)
+                          : AppColors.textSecondary.withValues(alpha: 0.7),
                       size: widget.extended ? 22 : 24,
                     ),
                     // Label
@@ -610,8 +598,10 @@ class _ModernNavItemState extends State<_ModernNavItem>
                             color: widget.isSelected
                                 ? _lightGold
                                 : _isHovered
-                                    ? _lightGold.withValues(alpha: 0.9)
-                                    : AppColors.textSecondary.withValues(alpha: 0.8),
+                                ? _lightGold.withValues(alpha: 0.9)
+                                : AppColors.textSecondary.withValues(
+                                    alpha: 0.8,
+                                  ),
                             fontSize: 14,
                             fontWeight: widget.isSelected
                                 ? FontWeight.w600
@@ -638,10 +628,7 @@ class _LoginItem extends StatefulWidget {
   final bool extended;
   final VoidCallback onTap;
 
-  const _LoginItem({
-    required this.extended,
-    required this.onTap,
-  });
+  const _LoginItem({required this.extended, required this.onTap});
 
   @override
   State<_LoginItem> createState() => _LoginItemState();
@@ -661,10 +648,7 @@ class _LoginItemState extends State<_LoginItem>
       duration: const Duration(milliseconds: 150),
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
 
@@ -716,8 +700,9 @@ class _LoginItemState extends State<_LoginItem>
                       : null,
                 ),
                 child: Row(
-                  mainAxisSize:
-                      widget.extended ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisSize: widget.extended
+                      ? MainAxisSize.max
+                      : MainAxisSize.min,
                   mainAxisAlignment: widget.extended
                       ? MainAxisAlignment.start
                       : MainAxisAlignment.center,
@@ -739,7 +724,9 @@ class _LoginItemState extends State<_LoginItem>
                           style: TextStyle(
                             color: _isHovered
                                 ? _lightGold
-                                : AppColors.textSecondary.withValues(alpha: 0.8),
+                                : AppColors.textSecondary.withValues(
+                                    alpha: 0.8,
+                                  ),
                             fontSize: 14,
                             fontWeight: _isHovered
                                 ? FontWeight.w600
@@ -766,10 +753,7 @@ class _LogoutItem extends StatefulWidget {
   final bool extended;
   final VoidCallback onTap;
 
-  const _LogoutItem({
-    required this.extended,
-    required this.onTap,
-  });
+  const _LogoutItem({required this.extended, required this.onTap});
 
   @override
   State<_LogoutItem> createState() => _LogoutItemState();
@@ -789,10 +773,7 @@ class _LogoutItemState extends State<_LogoutItem>
       duration: const Duration(milliseconds: 150),
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
 
@@ -844,8 +825,9 @@ class _LogoutItemState extends State<_LogoutItem>
                       : null,
                 ),
                 child: Row(
-                  mainAxisSize:
-                      widget.extended ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisSize: widget.extended
+                      ? MainAxisSize.max
+                      : MainAxisSize.min,
                   mainAxisAlignment: widget.extended
                       ? MainAxisAlignment.start
                       : MainAxisAlignment.center,
@@ -867,7 +849,9 @@ class _LogoutItemState extends State<_LogoutItem>
                           style: TextStyle(
                             color: _isHovered
                                 ? AppColors.error
-                                : AppColors.textSecondary.withValues(alpha: 0.8),
+                                : AppColors.textSecondary.withValues(
+                                    alpha: 0.8,
+                                  ),
                             fontSize: 14,
                             fontWeight: _isHovered
                                 ? FontWeight.w600
