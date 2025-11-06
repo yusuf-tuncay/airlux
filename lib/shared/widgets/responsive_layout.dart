@@ -159,6 +159,36 @@ class ResponsiveScaffold extends StatelessWidget {
         ),
         floatingActionButton: floatingActionButton,
       ),
+      ultraDesktop: Scaffold(
+        appBar: title != null || (actions != null && actions!.isNotEmpty)
+            ? AppBar(
+                title: title != null ? Text(title!) : null,
+                actions: actions,
+              )
+            : null,
+        body: Row(
+          children: [
+            // Premium Side Navigation
+            Consumer(
+              builder: (context, ref, child) {
+                return _PremiumNavigationRail(
+                  selectedIndex: bottomNavIndex ?? 0,
+                  onDestinationSelected: onBottomNavTap ?? (_) {},
+                  extended: true,
+                );
+              },
+            ),
+            const VerticalDivider(
+              thickness: 1,
+              width: 1,
+              color: AppColors.borderMedium,
+            ),
+            // Body
+            Expanded(child: body),
+          ],
+        ),
+        floatingActionButton: floatingActionButton,
+      ),
     );
   }
 }

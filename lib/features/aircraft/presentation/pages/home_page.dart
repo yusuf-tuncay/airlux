@@ -5,6 +5,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../core/data/dummy_data.dart';
 import '../../../../shared/widgets/responsive_layout.dart';
+import '../../../../shared/widgets/hero_section.dart';
+import '../../../../shared/widgets/search_bar_widget.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../data/models/aircraft_model.dart';
 
@@ -154,10 +156,22 @@ class _HomePageState extends State<HomePage>
   Widget _buildBody(BuildContext context, bool isMobile) {
     return CustomScrollView(
       slivers: [
-        // Premium Header Section
-        SliverToBoxAdapter(child: _buildHeader(context, isMobile)),
+        // Hero Section with Search Bar
+        SliverToBoxAdapter(
+          child: HeroSection(
+            searchBar: SearchBarWidget(
+              onSearch: (departure, date, passengers) {
+                // Arama işlemi - şimdilik filtreleme yapabiliriz
+                if (departure.isNotEmpty) {
+                  _searchController.text = departure;
+                  _applyFilters();
+                }
+              },
+            ),
+          ),
+        ),
 
-        // Filters & Search
+        // Filters & Search (mevcut filtreler)
         SliverToBoxAdapter(child: _buildFiltersSection(context, isMobile)),
 
         // Results Count
@@ -555,78 +569,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isMobile) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        isMobile ? 20 : 32,
-        isMobile ? 16 : 24,
-        isMobile ? 20 : 32,
-        isMobile ? 20 : 28,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.primaryDark,
-            AppColors.primaryDark.withValues(alpha: 0.8),
-          ],
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Hoş Geldiniz',
-                    style: TextStyle(
-                      fontSize: isMobile ? 24 : 32,
-                      fontWeight: FontWeight.w300,
-                      color: AppColors.textPrimary,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Lüks uçak ve helikopter filomuzu keşfedin',
-                    style: TextStyle(
-                      fontSize: isMobile ? 13 : 16,
-                      fontWeight: FontWeight.w300,
-                      color: AppColors.textSecondary,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-              // Profile Icon
-              Container(
-                width: isMobile ? 40 : 48,
-                height: isMobile ? 40 : 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: _lightGold.withValues(alpha: 0.3),
-                    width: 1.5,
-                  ),
-                  color: AppColors.backgroundCard.withValues(alpha: 0.5),
-                ),
-                child: Icon(
-                  Icons.person_outline,
-                  color: _lightGold,
-                  size: isMobile ? 20 : 24,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildFiltersSection(BuildContext context, bool isMobile) {
     return Container(
