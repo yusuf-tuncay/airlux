@@ -124,7 +124,7 @@ class StarsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.goldMedium
+      ..color = AppColors.silverMedium
       ..style = PaintingStyle.fill;
 
     final random = math.Random(42); // Sabit seed for consistent stars
@@ -135,7 +135,7 @@ class StarsPainter extends CustomPainter {
       final opacity = (math.sin(animationValue * 2 * math.pi + i) + 1) / 2;
       final radius = 1.0 + (opacity * 1.5);
 
-      paint.color = AppColors.goldMedium.withValues(
+      paint.color = AppColors.silverMedium.withValues(
         alpha: opacity * 0.6,
       );
 
@@ -175,7 +175,7 @@ class ParticlesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.gold
+      ..color = AppColors.silver
       ..style = PaintingStyle.fill;
 
     final random = math.Random(123); // Sabit seed
@@ -191,13 +191,13 @@ class ParticlesPainter extends CustomPainter {
       final opacity = (math.sin(animationValue * 3 * math.pi + i) + 1) / 2;
       final radius = 2.0 + (opacity * 3);
 
-      paint.color = AppColors.goldLight.withValues(
+      paint.color = AppColors.silverLight.withValues(
         alpha: opacity * 0.3,
       );
 
       // Gradient efekti için blur
       final blurPaint = Paint()
-        ..color = AppColors.goldLight.withValues(alpha: opacity * 0.1)
+        ..color = AppColors.silverLight.withValues(alpha: opacity * 0.1)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
 
       canvas.drawCircle(Offset(x, y), radius, paint);

@@ -8,20 +8,20 @@ import '../../../../core/firebase/firebase_service.dart';
 import '../../../../shared/widgets/animated_background.dart';
 import '../providers/auth_provider.dart';
 
-// Aviation Blue color palette
-const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
-const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
+// Piano Black + Silver color palette
+const Color _silver = Color(0xFFC0C0C0); // Silver - Vurgu
+const Color _silverLight = Color(0xFFE8E8E8); // Light Silver - Accent
 
 final LinearGradient _aviationGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [_iceGray, _lightGold],
+  colors: [_silver, _silverLight],
 );
 
 final LinearGradient _aviationButtonGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [_lightGold, _iceGray],
+  colors: [_silverLight, _silver],
 );
 
 /// Login ekranı
@@ -522,12 +522,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: _lightGold.withValues(alpha: 0.4),
+                                color: _silver.withValues(alpha: 0.4),
                                 blurRadius: 25,
                                 spreadRadius: 4,
                               ),
                               BoxShadow(
-                                color: _lightGold.withValues(alpha: 0.2),
+                                color: _silver.withValues(alpha: 0.2),
                                 blurRadius: 50,
                                 spreadRadius: 8,
                               ),
@@ -596,7 +596,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.email_outlined,
-                                color: _lightGold,
+                                color: _silver,
                                 size: 20,
                               ),
                               filled: true,
@@ -622,7 +622,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: _lightGold,
+                                  color: _silver,
                                   width: 2,
                                 ),
                               ),
@@ -671,7 +671,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
-                                color: _lightGold,
+                                color: _silver,
                                 size: 20,
                               ),
                               suffixIcon: IconButton(
@@ -679,7 +679,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   _obscurePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
-                                  color: _lightGold,
+                                  color: _silver,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -711,7 +711,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: _lightGold,
+                                  color: _silver,
                                   width: 2,
                                 ),
                               ),
@@ -740,9 +740,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   _rememberMe = value ?? false;
                                 });
                               },
-                              activeColor: _lightGold,
+                              activeColor: _silver,
                               checkColor: AppColors.primaryDark,
-                              side: BorderSide(color: _lightGold, width: 2),
+                              side: BorderSide(color: _silver, width: 2),
                             ),
                             GestureDetector(
                               onTap: () {
@@ -775,13 +775,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ? null
                                 : [
                                     BoxShadow(
-                                      color: _lightGold.withValues(alpha: 0.4),
+                                      color: _silver.withValues(alpha: 0.4),
                                       blurRadius: 20,
                                       spreadRadius: 2,
                                       offset: const Offset(0, 8),
                                     ),
                                     BoxShadow(
-                                      color: _lightGold.withValues(alpha: 0.3),
+                                      color: _silver.withValues(alpha: 0.3),
                                       blurRadius: 15,
                                       spreadRadius: 1,
                                     ),
@@ -805,7 +805,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        _lightGold,
+                                        _silver,
                                       ),
                                     ),
                                   )
@@ -829,22 +829,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           child: OutlinedButton.icon(
                             onPressed: _isLoading ? null : _handleGoogleLogin,
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: _lightGold, width: 2),
+                              side: BorderSide(color: _silver, width: 2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.g_mobiledata,
                               size: 28,
-                              color: _lightGold,
+                              color: _silver,
                             ),
-                            label: const Text(
+                            label: Text(
                               'Google ile Giriş Yap',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: _lightGold,
+                                color: _silver,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -881,7 +881,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                     decoration: TextDecoration.underline,
-                                    decorationColor: _lightGold,
+                                    decorationColor: _silver,
                                   ),
                                 ),
                               ),

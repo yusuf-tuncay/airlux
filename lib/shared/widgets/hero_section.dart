@@ -66,35 +66,45 @@ class _HeroSectionState extends State<HeroSection>
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
       height: screenHeight,
       width: double.infinity,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF0A1A2E), // Koyu lacivert
-            const Color(0xFF1A2B3E), // Orta lacivert
-            const Color(0xFF0F1E2E), // Daha koyu lacivert
-            const Color(0xFF0A1A2E), // Tekrar koyu
+            Color(0xFF0A0A0A), // Piano Black
+            Color(0xFF141414), // Jet Black
           ],
-          stops: const [0.0, 0.3, 0.7, 1.0],
         ),
       ),
       child: Stack(
         children: [
-          // Gökyüzü/Özel Jet Arka Plan Görseli
+          // Arka plan fotoğrafı
           Positioned.fill(
-            child: CustomPaint(
-              painter: _SkyPainter(),
-              size: Size(screenWidth, screenHeight),
+            child: Image.asset(
+              'assets/images/privatejet1.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF0A0A0A), // Piano Black
+                        Color(0xFF141414), // Jet Black
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
 
-          // Gradient overlay
+          // Koyu overlay - metinlerin okunabilirliği için (Piano Black gradient)
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -102,11 +112,11 @@ class _HeroSectionState extends State<HeroSection>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.1),
-                    Colors.black.withValues(alpha: 0.2),
+                    const Color(0xFF0A0A0A).withValues(alpha: 0.4), // Piano Black
+                    const Color(0xFF0A0A0A).withValues(alpha: 0.6), // Piano Black
+                    const Color(0xFF141414).withValues(alpha: 0.7), // Jet Black
                   ],
-                  stops: const [0.0, 0.7, 1.0],
+                  stops: const [0.0, 0.5, 1.0],
                 ),
               ),
             ),
@@ -116,12 +126,14 @@ class _HeroSectionState extends State<HeroSection>
           Positioned.fill(
             child: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isMobile ? 20 : 48,
-                  vertical: isMobile ? 40 : 60,
+                padding: EdgeInsets.only(
+                  left: isMobile ? 20 : 48,
+                  right: isMobile ? 20 : 48,
+                  top: isMobile ? 60 : 100,
+                  bottom: isMobile ? 40 : 60,
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Ana Başlık
@@ -135,17 +147,17 @@ class _HeroSectionState extends State<HeroSection>
                           style: TextStyle(
                             fontSize: isMobile ? 32 : 64,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: const Color(0xFFEDEDED), // Soft White
                             letterSpacing: isMobile ? -0.5 : -1.5,
                             height: 1.1,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withValues(alpha: 0.4),
+                                color: const Color(0xFFC0C0C0).withValues(alpha: 0.4), // Silver shadow
                                 offset: const Offset(0, 2),
                                 blurRadius: 12,
                               ),
                               Shadow(
-                                color: Colors.black.withValues(alpha: 0.2),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 offset: const Offset(0, 4),
                                 blurRadius: 20,
                               ),
@@ -179,12 +191,12 @@ class _HeroSectionState extends State<HeroSection>
                           style: TextStyle(
                             fontSize: isMobile ? 14 : 18,
                             fontWeight: FontWeight.w400,
-                            color: Colors.white.withValues(alpha: 0.95),
+                            color: const Color(0xFFEDEDED).withValues(alpha: 0.9), // Soft White
                             letterSpacing: 0.3,
                             height: 1.6,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 offset: const Offset(0, 1),
                                 blurRadius: 4,
                               ),
@@ -203,75 +215,3 @@ class _HeroSectionState extends State<HeroSection>
     );
   }
 }
-/// Gökyüzü efekti için optimize edilmiş custom painter
-class _SkyPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Bulut benzeri efektler - daha yumuşak
-    final cloudPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..blendMode = BlendMode.softLight;
-
-    // Büyük bulut
-    final cloud1 = Path()
-      ..addOval(
-        Rect.fromCircle(
-          center: Offset(size.width * 0.2, size.height * 0.25),
-          radius: size.width * 0.18,
-        ),
-      )
-      ..addOval(
-        Rect.fromCircle(
-          center: Offset(size.width * 0.3, size.height * 0.3),
-          radius: size.width * 0.12,
-        ),
-      );
-    cloudPaint.color = Colors.white.withValues(alpha: 0.04);
-    canvas.drawPath(cloud1, cloudPaint);
-
-    // İkinci bulut
-    final cloud2 = Path()
-      ..addOval(
-        Rect.fromCircle(
-          center: Offset(size.width * 0.75, size.height * 0.35),
-          radius: size.width * 0.15,
-        ),
-      )
-      ..addOval(
-        Rect.fromCircle(
-          center: Offset(size.width * 0.85, size.height * 0.4),
-          radius: size.width * 0.1,
-        ),
-      );
-    cloudPaint.color = Colors.white.withValues(alpha: 0.03);
-    canvas.drawPath(cloud2, cloudPaint);
-
-    // Yıldız efekti - daha fazla yıldız
-    final starPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.15)
-      ..style = PaintingStyle.fill;
-
-    final starCount = (size.width * size.height / 15000).round().clamp(30, 60);
-    for (int i = 0; i < starCount; i++) {
-      final x = (i * 137.5) % size.width;
-      final y = (i * 197.3) % size.height;
-      final starSize = (i % 3 == 0) ? 2.0 : 1.5;
-      canvas.drawCircle(Offset(x, y), starSize, starPaint);
-    }
-
-    // Parlayan yıldızlar
-    final brightStarPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.25)
-      ..style = PaintingStyle.fill;
-
-    for (int i = 0; i < 5; i++) {
-      final x = (i * 347.7) % size.width;
-      final y = (i * 523.1) % size.height;
-      canvas.drawCircle(Offset(x, y), 2.5, brightStarPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-

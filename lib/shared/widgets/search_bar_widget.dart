@@ -57,13 +57,13 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFB4BEC9), // Gümüş
-              onPrimary: Color(0xFF0A1A2E),
-              surface: Color(0xFF1A1F3A),
-              onSurface: Colors.white,
+              primary: Color(0xFFC0C0C0), // Silver
+              onPrimary: Color(0xFF0A0A0A), // Piano Black
+              surface: Color(0xFF2C2C2C), // Graphite Grey
+              onSurface: Color(0xFFEDEDED), // Soft White
             ),
             dialogTheme: const DialogThemeData(
-              backgroundColor: Color(0xFF1A1F3A),
+              backgroundColor: Color(0xFF2C2C2C), // Graphite Grey
             ),
           ),
           child: child!,
@@ -314,7 +314,11 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
-        prefixIcon: Icon(icon, color: const Color(0xFF6B7A8F), size: 22),
+        prefixIcon: Icon(
+          icon,
+          color: const Color(0xFFC0C0C0), // Silver
+          size: 22,
+        ),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
       ),
@@ -335,7 +339,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
           children: [
             Icon(
               Icons.calendar_today_rounded,
-              color: const Color(0xFF6B7A8F),
+              color: const Color(0xFFC0C0C0), // Silver
               size: 22,
             ),
             const SizedBox(width: 12),
@@ -372,7 +376,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
           children: [
             Icon(
               Icons.people_rounded,
-              color: const Color(0xFF6B7A8F),
+              color: const Color(0xFFC0C0C0), // Silver
               size: 22,
             ),
             const SizedBox(width: 12),
@@ -403,14 +407,15 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF6B7A8F), // Gümüş
-            Color(0xFF4A5A6F), // Koyu gümüş
+            Color(0xFFE8E8E8), // Light silver
+            Color(0xFFC0C0C0), // Silver
+            Color(0xFFA8A8A8), // Dark silver
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6B7A8F).withValues(alpha: 0.4),
+            color: const Color(0xFFC0C0C0).withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 6),
             spreadRadius: 0,
@@ -460,12 +465,12 @@ class _PassengerButton extends StatelessWidget {
           height: 44,
           decoration: BoxDecoration(
             color: onPressed != null
-                ? const Color(0xFF6B7A8F).withValues(alpha: 0.1)
+                ? const Color(0xFFC0C0C0).withValues(alpha: 0.15)
                 : Colors.grey.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: onPressed != null
-                  ? const Color(0xFF6B7A8F).withValues(alpha: 0.3)
+                  ? const Color(0xFFC0C0C0).withValues(alpha: 0.4)
                   : Colors.grey.withValues(alpha: 0.1),
               width: 1,
             ),
@@ -473,7 +478,7 @@ class _PassengerButton extends StatelessWidget {
           child: Icon(
             icon,
             color: onPressed != null
-                ? const Color(0xFF6B7A8F)
+                ? const Color(0xFFC0C0C0) // Silver
                 : Colors.grey.withValues(alpha: 0.4),
             size: 22,
           ),

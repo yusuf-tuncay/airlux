@@ -6,9 +6,9 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/route_names.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
-// Aviation Blue color palette
-const Color _iceGray = Color(0xFFB4BEC9); // Buz grisi - Vurgu
-const Color _lightGold = Color(0xFFD6C37D); // Açık altın - Accent
+// Piano Black + Silver color palette
+const Color _silver = Color(0xFFC0C0C0); // Silver - Vurgu
+const Color _silverLight = Color(0xFFE8E8E8); // Light Silver - Accent
 
 /// Responsive layout widget'ı
 /// Cihaz tipine göre farklı layout'lar gösterir
@@ -76,8 +76,9 @@ class ResponsiveScaffold extends StatelessWidget {
                     : 0, // 0-3 arası olmalı (4 öğe var)
                 onTap: onBottomNavTap,
                 type: BottomNavigationBarType.fixed,
-                selectedItemColor: Theme.of(context).colorScheme.primary,
-                unselectedItemColor: Colors.grey,
+                selectedItemColor: AppColors.silver,
+                unselectedItemColor: AppColors.textSecondary,
+                backgroundColor: AppColors.primaryDark,
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.flight),
@@ -302,16 +303,16 @@ class _PremiumNavigationRail extends ConsumerWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: _lightGold.withValues(alpha: 0.15),
+                        color: _silver.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: _lightGold.withValues(alpha: 0.3),
+                          color: _silver.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
                       child: const Icon(
                         Icons.flight_takeoff_rounded,
-                        color: _lightGold,
+                        color: _silver,
                         size: 20,
                       ),
                     ),
@@ -344,16 +345,16 @@ class _PremiumNavigationRail extends ConsumerWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: _lightGold.withValues(alpha: 0.15),
+                  color: _silver.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _lightGold.withValues(alpha: 0.3),
+                    color: _silver.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
                 child: const Icon(
                   Icons.flight_takeoff_rounded,
-                  color: _lightGold,
+                  color: _silver,
                   size: 22,
                 ),
               ),
@@ -570,9 +571,9 @@ class _ModernNavItemState extends State<_ModernNavItem>
                 ),
                 decoration: BoxDecoration(
                   color: widget.isSelected
-                      ? _lightGold.withValues(alpha: 0.12)
+                      ? _silver.withValues(alpha: 0.12)
                       : _isHovered
-                      ? _lightGold.withValues(alpha: 0.06)
+                      ? _silver.withValues(alpha: 0.06)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -596,12 +597,12 @@ class _ModernNavItemState extends State<_ModernNavItem>
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [_lightGold, _iceGray],
+                            colors: [_silverLight, _silver],
                           ),
                           borderRadius: BorderRadius.circular(2),
                           boxShadow: [
                             BoxShadow(
-                              color: _lightGold.withValues(alpha: 0.4),
+                              color: _silver.withValues(alpha: 0.4),
                               blurRadius: 4,
                               spreadRadius: 0,
                             ),
@@ -612,9 +613,9 @@ class _ModernNavItemState extends State<_ModernNavItem>
                     Icon(
                       widget.icon,
                       color: widget.isSelected
-                          ? _lightGold
+                          ? _silver
                           : _isHovered
-                          ? _lightGold.withValues(alpha: 0.8)
+                          ? _silver.withValues(alpha: 0.8)
                           : AppColors.textSecondary.withValues(alpha: 0.7),
                       size: widget.extended ? 22 : 24,
                     ),
@@ -626,9 +627,9 @@ class _ModernNavItemState extends State<_ModernNavItem>
                           widget.label,
                           style: TextStyle(
                             color: widget.isSelected
-                                ? _lightGold
+                                ? _silver
                                 : _isHovered
-                                ? _lightGold.withValues(alpha: 0.9)
+                                ? _silver.withValues(alpha: 0.9)
                                 : AppColors.textSecondary.withValues(
                                     alpha: 0.8,
                                   ),
@@ -719,12 +720,12 @@ class _LoginItemState extends State<_LoginItem>
                 ),
                 decoration: BoxDecoration(
                   color: _isHovered
-                      ? _lightGold.withValues(alpha: 0.12)
+                      ? _silver.withValues(alpha: 0.12)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                   border: _isHovered
                       ? Border.all(
-                          color: _lightGold.withValues(alpha: 0.3),
+                          color: _silver.withValues(alpha: 0.3),
                           width: 1,
                         )
                       : null,
@@ -741,7 +742,7 @@ class _LoginItemState extends State<_LoginItem>
                     Icon(
                       Icons.login_rounded,
                       color: _isHovered
-                          ? _lightGold
+                          ? _silver
                           : AppColors.textSecondary.withValues(alpha: 0.7),
                       size: widget.extended ? 22 : 24,
                     ),
@@ -753,7 +754,7 @@ class _LoginItemState extends State<_LoginItem>
                           'Giriş Yap',
                           style: TextStyle(
                             color: _isHovered
-                                ? _lightGold
+                                ? _silver
                                 : AppColors.textSecondary.withValues(
                                     alpha: 0.8,
                                   ),
