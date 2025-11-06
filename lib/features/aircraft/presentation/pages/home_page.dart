@@ -101,6 +101,11 @@ class _HomePageState extends State<HomePage>
           (a, b) => a.pricePerHour.compareTo(b.pricePerHour),
         );
         break;
+      case 'priceDesc':
+        _filteredAircrafts.sort(
+          (a, b) => b.pricePerHour.compareTo(a.pricePerHour),
+        );
+        break;
       case 'rating':
         _filteredAircrafts.sort((a, b) => b.rating.compareTo(a.rating));
         break;
@@ -166,34 +171,20 @@ class _HomePageState extends State<HomePage>
                   _applyFilters();
                 }
               },
+              selectedType: _selectedType,
+              onTypeSelected: (type) {
+                setState(() {
+                  _selectedType = type;
+                  _applyFilters();
+                });
+              },
             ),
+            selectedType: _selectedType,
           ),
         ),
 
         // Filters & Search (mevcut filtreler)
         SliverToBoxAdapter(child: _buildFiltersSection(context, isMobile)),
-
-        // Results Count
-        if (_filteredAircrafts.length != _aircrafts.length)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 16 : 24,
-                vertical: 8,
-              ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '${_filteredAircrafts.length} sonuç bulundu',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ),
-            ),
-          ),
 
         // Aircraft Grid/List
         _filteredAircrafts.isEmpty
@@ -499,27 +490,7 @@ class _HomePageState extends State<HomePage>
           ),
         ),
         const SizedBox(height: 16),
-        ...items.map(
-          (item) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: Navigate to page
-                },
-                child: Text(
-                  item,
-                  style: TextStyle(
-                    color: AppColors.textSecondary.withValues(alpha: 0.7),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+        ...items.map((item) => _FooterLinkItem(item: item)),
       ],
     );
   }
@@ -717,7 +688,7 @@ class _HomePageState extends State<HomePage>
 
   Widget _buildMobileSliverList() {
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 96, vertical: 48),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final aircraft = _filteredAircrafts[index];
@@ -732,7 +703,7 @@ class _HomePageState extends State<HomePage>
 
   Widget _buildDesktopSliverGrid() {
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 200, vertical: 48),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: Responsive.isTablet(context) ? 2 : 4,
@@ -1534,6 +1505,22 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
             ),
           ),
           PopupMenuItem(
+            value: 'priceDesc',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.attach_money,
+                  size: 18,
+                  color: widget.sortBy == 'priceDesc'
+                      ? _silver
+                      : AppColors.textSecondary,
+                ),
+                const SizedBox(width: 12),
+                const Text('Fiyat (Yüksek → Düşük)'),
+              ],
+            ),
+          ),
+          PopupMenuItem(
             value: 'rating',
             child: Row(
               children: [
@@ -1566,6 +1553,48 @@ class _SortButtonWidgetState extends State<_SortButtonWidget> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Footer link item with hover effect
+class _FooterLinkItem extends StatefulWidget {
+  final String item;
+
+  const _FooterLinkItem({required this.item});
+
+  @override
+  State<_FooterLinkItem> createState() => _FooterLinkItemState();
+}
+
+class _FooterLinkItemState extends State<_FooterLinkItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTap: () {
+            // TODO: Navigate to page
+          },
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: TextStyle(
+              color: _isHovered
+                  ? Colors.white
+                  : AppColors.textSecondary.withValues(alpha: 0.7),
+              fontSize: 13,
+              fontWeight: _isHovered ? FontWeight.w500 : FontWeight.w400,
+            ),
+            child: Text(widget.item),
+          ),
+        ),
       ),
     );
   }

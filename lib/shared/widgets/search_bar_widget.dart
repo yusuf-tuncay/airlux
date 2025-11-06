@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/responsive.dart';
 import '../../core/constants/app_colors.dart';
+import '../../features/aircraft/data/models/aircraft_model.dart';
 import 'package:intl/intl.dart';
+
+// Piano Black + Silver color palette
+const Color _silver = Color(0xFFC0C0C0); // Silver - Vurgu
 
 /// Premium Arama Bar Widget - Teknevia tarzı optimize edilmiş
 class SearchBarWidget extends StatefulWidget {
   final Function(String departure, DateTime? date, int passengers)? onSearch;
+  final Function(AircraftType?)? onTypeSelected;
+  final AircraftType? selectedType;
 
-  const SearchBarWidget({super.key, this.onSearch});
+  const SearchBarWidget({
+    super.key,
+    this.onSearch,
+    this.onTypeSelected,
+    this.selectedType,
+  });
 
   @override
   State<SearchBarWidget> createState() => _SearchBarWidgetState();
@@ -250,6 +261,12 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
           thickness: 1,
           color: Colors.grey.withValues(alpha: 0.15),
         ),
+        _buildTypeDropdownField(),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: Colors.grey.withValues(alpha: 0.15),
+        ),
         _buildPassengerField(),
         Divider(
           height: 1,
@@ -282,6 +299,13 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
           color: Colors.grey.withValues(alpha: 0.2),
         ),
         Expanded(child: _buildDateField()),
+        Container(
+          width: 1,
+          height: 56,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          color: Colors.grey.withValues(alpha: 0.2),
+        ),
+        Expanded(child: _buildTypeDropdownField()),
         Container(
           width: 1,
           height: 56,
@@ -364,6 +388,140 @@ class _SearchBarWidgetState extends State<SearchBarWidget>
         ),
       ),
     );
+  }
+
+  Widget _buildTypeDropdownField() {
+    final selectedLabel = _getTypeLabel(widget.selectedType);
+
+    return PopupMenuButton<AircraftType?>(
+      offset: const Offset(0, 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.withValues(alpha: 0.2), width: 1),
+      ),
+      color: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Row(
+          children: [
+            Icon(
+              Icons.flight_rounded,
+              color: const Color(0xFFC0C0C0), // Silver
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                selectedLabel,
+                style: TextStyle(
+                  color: widget.selectedType != null
+                      ? const Color(0xFF0A1A2E)
+                      : Colors.grey.withValues(alpha: 0.6),
+                  fontSize: 15,
+                  fontWeight: widget.selectedType != null
+                      ? FontWeight.w500
+                      : FontWeight.w400,
+                  letterSpacing: 0.1,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Icon(
+              Icons.arrow_drop_down_rounded,
+              color: Colors.grey.withValues(alpha: 0.6),
+              size: 24,
+            ),
+          ],
+        ),
+      ),
+      itemBuilder: (BuildContext context) => [
+        PopupMenuItem<AircraftType?>(
+          value: AircraftType.jet,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Jet',
+                  style: TextStyle(
+                    color: widget.selectedType == AircraftType.jet
+                        ? const Color(0xFF0A1A2E)
+                        : Colors.grey.withValues(alpha: 0.7),
+                    fontWeight: widget.selectedType == AircraftType.jet
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              if (widget.selectedType == AircraftType.jet)
+                Icon(Icons.check_rounded, color: _silver, size: 20),
+            ],
+          ),
+        ),
+        PopupMenuItem<AircraftType?>(
+          value: AircraftType.helicopter,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Helikopter',
+                  style: TextStyle(
+                    color: widget.selectedType == AircraftType.helicopter
+                        ? const Color(0xFF0A1A2E)
+                        : Colors.grey.withValues(alpha: 0.7),
+                    fontWeight: widget.selectedType == AircraftType.helicopter
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              if (widget.selectedType == AircraftType.helicopter)
+                Icon(Icons.check_rounded, color: _silver, size: 20),
+            ],
+          ),
+        ),
+        PopupMenuItem<AircraftType?>(
+          value: AircraftType.turboprop,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Turboprop',
+                  style: TextStyle(
+                    color: widget.selectedType == AircraftType.turboprop
+                        ? const Color(0xFF0A1A2E)
+                        : Colors.grey.withValues(alpha: 0.7),
+                    fontWeight: widget.selectedType == AircraftType.turboprop
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              if (widget.selectedType == AircraftType.turboprop)
+                Icon(Icons.check_rounded, color: _silver, size: 20),
+            ],
+          ),
+        ),
+      ],
+      onSelected: (AircraftType? type) {
+        widget.onTypeSelected?.call(type);
+      },
+    );
+  }
+
+  String _getTypeLabel(AircraftType? type) {
+    if (type == null) return 'Uçak Tipi';
+    switch (type) {
+      case AircraftType.jet:
+        return 'Jet';
+      case AircraftType.helicopter:
+        return 'Helikopter';
+      case AircraftType.turboprop:
+        return 'Turboprop';
+    }
   }
 
   Widget _buildPassengerField() {

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/responsive.dart';
+import '../../features/aircraft/data/models/aircraft_model.dart';
 
 /// Hero Section Widget - Teknevia tarzı tam ekran hero section
 class HeroSection extends StatefulWidget {
   final Widget searchBar;
+  final AircraftType? selectedType;
 
   const HeroSection({
     super.key,
     required this.searchBar,
+    this.selectedType,
   });
 
   @override
@@ -85,7 +88,7 @@ class _HeroSectionState extends State<HeroSection>
           // Arka plan fotoğrafı
           Positioned.fill(
             child: Image.asset(
-              'assets/images/privatejet1.jpg',
+              _getBackgroundImage(),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -142,7 +145,7 @@ class _HeroSectionState extends State<HeroSection>
                       child: SlideTransition(
                         position: _slideAnimation,
                         child: Text(
-                          'Tek tıkla özel jet kirala!',
+                          'Tek tıkla özel uçak kirala!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: isMobile ? 32 : 64,
@@ -213,5 +216,20 @@ class _HeroSectionState extends State<HeroSection>
         ],
       ),
     );
+  }
+
+  String _getBackgroundImage() {
+    switch (widget.selectedType) {
+      case AircraftType.jet:
+        return 'assets/images/privatejet1.jpg';
+      case AircraftType.helicopter:
+        return 'assets/images/privatehelicopter1.jpg';
+      case AircraftType.turboprop:
+        // Turboprop için varsayılan olarak jet fotoğrafını kullan
+        return 'assets/images/privatejet1.jpg';
+      case null:
+        // Seçim yapılmamışsa varsayılan jet fotoğrafı
+        return 'assets/images/privatejet1.jpg';
+    }
   }
 }
